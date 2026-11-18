@@ -1,0 +1,2575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitPulse Pro — Logos Oficiales TikTok/IG/YouTube & Spotify API</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23FF4B2B'/%3E%3Cstop offset='50%25' stop-color='%23FF416C'/%3E%3Cstop offset='100%25' stop-color='%236366F1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='18' fill='url(%23g)'/%3E%3Cpath d='M16 34h9l5-15 6 26 5-11h7' fill='none' stroke='%23FFF' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700;800&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* Variables globales de color, fondos oscuros y curvas de animacion */
+    :root {
+      --bg-app: #0B0E17;
+      --bg-surface: #141927;
+      --bg-elevated: #1C2336;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(255, 255, 255, 0.18);
+      --primary: #00E5A3;
+      --primary-dark: #042F22;
+      --accent-coral: #FF416C;
+      --accent-indigo: #6366F1;
+      --accent-cyan: #00C6FF;
+      --spotify: #1ED760;
+      --text-main: #FFFFFF;
+      --text-sec: #94A3B8;
+      --text-muted: #64748B;
+      --spring: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 0%, #171E31 0%, #05070C 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px 12px 24px;
+    }
+
+    .simulator-toolbar {
+      max-width: 412px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+      margin-bottom: 10px;
+      background: rgba(20, 25, 39, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      font-size: 11px;
+      color: var(--text-sec);
+    }
+    .sim-pill {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: #FFF;
+      padding: 6px 11px;
+      border-radius: 99px;
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .sim-pill:hover { border-color: var(--primary); }
+
+    /* Chasis fisico del telefono Android para vista previa en escritorio */
+    .phone-chassis {
+      width: 412px;
+      max-width: 100%;
+      height: 872px;
+      border-radius: 52px;
+      padding: 11px;
+      background: linear-gradient(145deg, #2E3646 0%, #0E121B 50%, #1F2633 100%);
+      box-shadow: 0 35px 90px rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .phone-screen {
+      flex: 1;
+      background: var(--bg-app);
+      border-radius: 42px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .status-bar {
+      height: 36px;
+      padding: 0 26px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #E2E8F0;
+      background: var(--bg-app);
+      z-index: 50;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .camera-cutout {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #000;
+      border: 1.5px solid #1E293B;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* Contenedor de pantallas nativas independientes con transicion suave */
+    .app-screen {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: screenFade 0.28s var(--spring);
+    }
+    .app-screen.active { display: flex; }
+    @keyframes screenFade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .screen-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 20px 108px;
+      scroll-behavior: smooth;
+    }
+    .screen-scroll::-webkit-scrollbar { width: 0px; }
+
+    .native-header {
+      padding: 12px 20px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-app);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .header-title-lg {
+      font-family: 'Outfit', sans-serif;
+      font-size: 21px;
+      font-weight: 800;
+      color: #FFF;
+      letter-spacing: -0.02em;
+    }
+    .header-sub-sm {
+      font-size: 11.5px;
+      color: var(--text-sec);
+      font-weight: 500;
+      margin-top: 1px;
+    }
+    .avatar-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-focus);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+    .toast-native {
+      position: absolute;
+      top: 48px;
+      left: 20px;
+      right: 20px;
+      background: #10B981;
+      color: #032218;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 12.5px;
+      font-weight: 800;
+      text-align: center;
+      z-index: 95;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6);
+      transform: translateY(-25px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.28s var(--spring);
+    }
+    .toast-native.visible { transform: translateY(0); opacity: 1; }
+
+    /* Estilos de la pantalla de bienvenida y seleccion de rol (Atleta o Coach) */
+    .login-hero-box {
+      height: 205px;
+      border-radius: 28px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 20px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+    }
+    .login-hero-box img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.68); }
+    .login-hero-grad {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 10%, rgba(11, 14, 23, 0.96) 100%);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .role-big-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+    .role-option-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg-surface);
+      border: 2px solid var(--border-subtle);
+      border-radius: 22px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.22s var(--spring);
+    }
+    .role-option-row.active-athlete {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, rgba(0, 229, 163, 0.14), var(--bg-surface));
+      box-shadow: 0 10px 25px rgba(0, 229, 163, 0.15);
+    }
+    .role-option-row.active-coach {
+      border-color: var(--accent-coral);
+      background: linear-gradient(135deg, rgba(255, 65, 108, 0.16), var(--bg-surface));
+      box-shadow: 0 10px 25px rgba(255, 65, 108, 0.18);
+    }
+    .role-icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    /* Campos de formulario y filas con logos oficiales de redes sociales */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-sec);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .native-input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border-subtle);
+      color: #FFF;
+      padding: 13px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: border-color 0.2s;
+    }
+    .native-input:focus { outline: none; border-color: var(--primary); }
+
+    /* Fila de entrada de texto con insignia oficial de TikTok, Instagram o YouTube */
+    .social-input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 6px 12px 6px 8px;
+      margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+    .social-input-row:focus-within {
+      border-color: var(--primary);
+    }
+    .social-brand-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-tiktok {
+      background: #000000;
+      border: 1px solid rgba(37, 244, 238, 0.5);
+      box-shadow: 0 2px 10px rgba(254, 44, 85, 0.25);
+    }
+    .brand-instagram {
+      background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    }
+    .brand-youtube {
+      background: #FF0000;
+    }
+    .brand-spotify {
+      background: #1ED760;
+    }
+    .social-input-clean {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #FFF;
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 8px 0;
+    }
+    .social-input-clean:focus { outline: none; }
+    .social-network-tag {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Insignias de redes sociales mostradas dentro del perfil del entrenador */
+    .social-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .social-brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-focus);
+      padding: 7px 12px 7px 8px;
+      border-radius: 99px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #FFF;
+      cursor: pointer;
+      transition: transform 0.18s;
+    }
+    .social-brand-pill:hover { transform: translateY(-2px); }
+    .mini-logo-box {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Tarjeta de conexion con la cuenta y playlists de Spotify API */
+    .spotify-account-box {
+      background: linear-gradient(145deg, rgba(30, 215, 96, 0.14), rgba(20, 25, 39, 0.95));
+      border: 1.5px solid rgba(30, 215, 96, 0.45);
+      border-radius: 20px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .spotify-playlist-Item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(11, 14, 23, 0.85);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 8px 10px;
+      margin-top: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .spotify-playlist-Item.selected {
+      border-color: var(--spotify);
+      background: rgba(30, 215, 96, 0.14);
+    }
+    .spotify-playlist-Item img {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .btn-primary-lg {
+      width: 100%;
+      background: linear-gradient(135deg, #00E5A3 0%, #00C6FF 100%);
+      color: #041014;
+      border: none;
+      padding: 16px 20px;
+      border-radius: 18px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 10px 28px rgba(0, 229, 163, 0.3);
+      transition: transform 0.18s var(--spring);
+    }
+    .btn-primary-lg:active { transform: scale(0.98); }
+
+    .btn-coral-lg {
+      width: 100%;
+      background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+      color: #FFF;
+      border: none;
+      padding: 16px 20px;
+      border-radius: 18px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 10px 28px rgba(255, 65, 108, 0.35);
+      transition: transform 0.18s var(--spring);
+    }
+
+    /* Estilos del formulario para crear comunidad de Coach y subir fotos desde el celular */
+    .cover-upload-box {
+      height: 130px;
+      border-radius: 22px;
+      background: var(--bg-surface);
+      border: 2px dashed rgba(255, 255, 255, 0.18);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+    .cover-upload-box img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.6);
+    }
+    .cover-upload-overlay {
+      position: relative;
+      z-index: 2;
+      background: rgba(11, 14, 23, 0.78);
+      backdrop-filter: blur(8px);
+      padding: 8px 14px;
+      border-radius: 99px;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #FFF;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .privacy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .privacy-card {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 14px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .privacy-card.active {
+      border-color: var(--accent-coral);
+      background: rgba(255, 65, 108, 0.12);
+    }
+
+    /* Cabecera y galeria de fotos dentro del perfil de la comunidad del Coach */
+    .coach-profile-hero {
+      border-radius: 26px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    .cp-banner { height: 115px; position: relative; }
+    .cp-banner img { width: 100%; height: 100%; object-fit: cover; }
+    .cp-avatar-row {
+      padding: 0 18px;
+      margin-top: -34px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      position: relative;
+      z-index: 2;
+    }
+    .cp-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 22px;
+      object-fit: cover;
+      border: 3.5px solid var(--bg-surface);
+      background: var(--bg-elevated);
+    }
+    .cp-body { padding: 12px 18px 18px; }
+    .coach-gallery-strip {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-top: 12px;
+    }
+    .coach-gallery-strip::-webkit-scrollbar { height: 0; }
+    .coach-gallery-img {
+      width: 95px;
+      height: 95px;
+      border-radius: 16px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid var(--border-focus);
+    }
+
+    .native-tabs {
+      display: flex;
+      background: var(--bg-surface);
+      padding: 4px;
+      border-radius: 16px;
+      margin-bottom: 18px;
+      border: 1px solid var(--border-subtle);
+    }
+    .n-tab {
+      flex: 1;
+      padding: 10px 6px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-sec);
+      font-family: 'Outfit', sans-serif;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .n-tab.active {
+      background: var(--bg-elevated);
+      color: #FFF;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .spacious-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .carousel-track {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+    }
+    .carousel-track::-webkit-scrollbar { height: 0; }
+    .comm-featured-card {
+      min-width: 310px;
+      scroll-snap-align: center;
+      border-radius: 26px;
+      padding: 18px;
+      color: #FFF;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Barra de navegacion inferior flotante con las 4 secciones principales */
+    .bottom-nav-wrap {
+      position: absolute;
+      bottom: 14px;
+      left: 18px;
+      right: 18px;
+      z-index: 40;
+    }
+    .bottom-nav {
+      display: flex;
+      background: rgba(20, 25, 39, 0.94);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 26px;
+      padding: 7px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8);
+    }
+    .b-nav-item {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 4px;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .b-nav-item svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.2; fill: none; }
+    .b-nav-item.active {
+      color: #041014;
+      background: var(--primary);
+      font-weight: 800;
+    }
+
+    /* Ventanas modales desplegables desde abajo (Bottom Sheets) */
+    .sheet-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 7, 12, 0.88);
+      backdrop-filter: blur(14px);
+      z-index: 80;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .sheet-backdrop.open { display: flex; }
+    .sheet-panel {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-focus);
+      border-top-left-radius: 32px;
+      border-top-right-radius: 32px;
+      padding: 20px;
+      max-height: 92%;
+      overflow-y: auto;
+    }
+    .media-stage {
+      width: 100%;
+      height: 230px;
+      background: #070A12;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid var(--border-focus);
+      position: relative;
+      margin: 12px 0;
+    }
+    #biomechCanvas { width: 100%; height: 100%; display: block; }
+    #realGymPhoto { width: 100%; height: 100%; object-fit: cover; display: none; }
+    #confettiCanvas { position: absolute; inset: 0; pointer-events: none; z-index: 90; }
+  </style>
+</head>
+<body>
+
+  <div class="simulator-toolbar">
+    <span>📱 <strong>FitPulse Pro</strong> • Logos Oficiales, Spotify API & DB Activa</span>
+    <div style="display:flex;gap:6px;">
+      <button class="sim-pill" style="border-color:var(--primary);color:var(--primary);" onclick="openDatabaseInspector()">🗄️ Base de Datos</button>
+      <button class="sim-pill" onclick="openLoginScreen()">🔄 Rol</button>
+    </div>
+  </div>
+
+  <div class="phone-chassis">
+    <div class="phone-screen">
+      <canvas id="confettiCanvas" width="390" height="845"></canvas>
+
+      <div class="status-bar">
+        <span>19:45</span>
+        <div class="camera-cutout"></div>
+        <span>5G • 100%</span>
+      </div>
+
+      <div id="toastNative" class="toast-native"></div>
+
+      <!-- =====================================================================
+           PANTALLA 0: BIENVENIDA Y LOGIN
+           ===================================================================== -->
+      <div id="screen-login" class="app-screen active">
+        <div class="screen-scroll" style="padding-bottom:30px;">
+          <div class="login-hero-box">
+            <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80" alt="Gym Hero" />
+            <div class="login-hero-grad">
+              <span style="font-size:10px;font-weight:800;color:var(--primary);letter-spacing:1px;">FITPULSE PRO ANDROID</span>
+              <h1 style="font-family:'Outfit',sans-serif;font-size:26px;font-weight:900;line-height:1.12;margin-top:4px;">
+                Entrena con Rayos-X o Crea tu Comunidad
+              </h1>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">¿Cómo vas a usar la App?</label>
+            <div class="role-big-cards">
+              <div id="cardRoleAthlete" class="role-option-row active-athlete" onclick="chooseLoginRole('athlete')">
+                <div class="role-icon-circle" style="background:rgba(0,229,163,0.16);color:var(--primary);">🏋️‍♂️</div>
+                <div style="flex:1;">
+                  <div style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;color:#FFF;">Soy Atleta</div>
+                  <div style="font-size:12px;color:var(--text-sec);margin-top:2px;line-height:1.35;">
+                    Entra directo a las rutinas de GYM / Casa y únete a comunidades.
+                  </div>
+                </div>
+              </div>
+
+              <div id="cardRoleCoach" class="role-option-row" onclick="chooseLoginRole('coach')">
+                <div class="role-icon-circle" style="background:rgba(255,65,108,0.18);color:var(--accent-coral);">👑</div>
+                <div style="flex:1;">
+                  <div style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;color:#FFF;">Soy Coach / Entrenador</div>
+                  <div style="font-size:12px;color:var(--text-sec);margin-top:2px;line-height:1.35;">
+                    Crea tu comunidad, conecta tus redes (TikTok, IG, YouTube) y tu cuenta de Spotify.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tu Nombre o Usuario</label>
+            <input id="loginNameField" class="native-input" value="Eder" placeholder="Escribe tu nombre..." />
+          </div>
+
+          <button id="loginActionBtn" class="btn-primary-lg" onclick="handleLoginContinue()">
+            <span>Entrar como Atleta →</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           PANTALLA EXCLUSIVA COACH 1: FORMULARIO CON LOGOS OFICIALES Y SPOTIFY API
+           ===================================================================== -->
+      <div id="screen-coach-create" class="app-screen">
+        <div class="native-header">
+          <div>
+            <div class="header-title-lg">Crea tu Comunidad 👑</div>
+            <div class="header-sub-sm">Configura tu club, redes y Spotify</div>
+          </div>
+          <button class="sim-pill" onclick="openLoginScreen()">Volver</button>
+        </div>
+
+        <div class="screen-scroll" style="padding-bottom:40px;">
+          <!-- 1. Portada y Foto -->
+          <label class="form-label">1. Portada y Foto del Entrenador (Desde tu Celular)</label>
+          <div class="cover-upload-box" onclick="document.getElementById('fileCoachCover').click()">
+            <img id="previewCoachCoverImg" src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=700&q=80" alt="Portada" />
+            <div class="cover-upload-overlay">📸 Toca para subir foto desde tu galería</div>
+            <input type="file" id="fileCoachCover" accept="image/*" style="display:none" onchange="handleCoachCoverUpload(event)" />
+          </div>
+
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+            <img id="previewCoachAvatarImg" src="https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=240&q=80" style="width:64px;height:64px;border-radius:20px;object-fit:cover;border:2px solid var(--accent-coral);" />
+            <div style="flex:1;">
+              <button class="sim-pill" style="padding:8px 12px;font-size:11px;" onclick="document.getElementById('fileCoachAvatar').click()">
+                📱 Cambiar mi Foto de Coach
+              </button>
+              <input type="file" id="fileCoachAvatar" accept="image/*" style="display:none" onchange="handleCoachAvatarUpload(event)" />
+              <div style="font-size:11px;color:var(--text-sec);margin-top:4px;">Esta foto verán los atletas en el Top Comunidades</div>
+            </div>
+          </div>
+
+          <!-- 2. Nombre y Descripción -->
+          <div class="form-group">
+            <label class="form-label">2. Nombre de tu Comunidad</label>
+            <input id="coachCommNameInput" class="native-input" value="Team Eder • Aesthetics & Fuerza" placeholder="Ej. Team Eder Pro Gym..." />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">3. Descripción y Meta del Grupo</label>
+            <input id="coachCommDescInput" class="native-input" value="Rutinas de hipertrofia real, técnica sin lesiones, música pesada y seguimiento diario." placeholder="¿Qué lograrán tus miembros aquí?" />
+          </div>
+
+          <!-- 4. Privacidad -->
+          <label class="form-label">4. Privacidad de Acceso</label>
+          <div class="privacy-grid">
+            <div id="privBtnPublic" class="privacy-card" onclick="selectPrivacyMode('public')">
+              <div style="font-size:20px;margin-bottom:4px;">🌍</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;color:#FFF;">Pública</div>
+              <div style="font-size:11px;color:var(--text-sec);margin-top:2px;line-height:1.3;">
+                Cualquiera puede unirse directo.
+              </div>
+            </div>
+
+            <div id="privBtnInvite" class="privacy-card active" onclick="selectPrivacyMode('invite')">
+              <div style="font-size:20px;margin-bottom:4px;">🔒</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;color:#FFF;">Por Solicitud</div>
+              <div style="font-size:11px;color:var(--text-sec);margin-top:2px;line-height:1.3;">
+                Los atletas envían solicitud y tú aceptas o niegas.
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. REDES SOCIALES CON LOGOS OFICIALES (TIKTOK, INSTAGRAM, YOUTUBE) -->
+          <div class="form-group">
+            <label class="form-label">5. Tus Redes Sociales Oficiales</label>
+
+            <!-- TikTok Official Logo Input -->
+            <div class="social-input-row">
+              <div class="social-brand-badge brand-tiktok" title="TikTok">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1Z" fill="#FFF"/>
+                  <path d="M16.5 2h-1v13.67a2.89 2.89 0 0 1-4.5 2.4" stroke="#25F4EE" stroke-width="1.2"/>
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25" stroke="#FE2C55" stroke-width="1.2"/>
+                </svg>
+              </div>
+              <input id="coachTiktokInput" class="social-input-clean" value="@eder_gymtok" placeholder="Tu usuario de TikTok (@usuario)" />
+              <span class="social-network-tag">TikTok</span>
+            </div>
+
+            <!-- Instagram Official Logo Input -->
+            <div class="social-input-row">
+              <div class="social-brand-badge brand-instagram" title="Instagram">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                </svg>
+              </div>
+              <input id="coachIgInput" class="social-input-clean" value="@eder.coach.fit" placeholder="Tu usuario de Instagram (@usuario)" />
+              <span class="social-network-tag">Instagram</span>
+            </div>
+
+            <!-- YouTube Official Logo Input -->
+            <div class="social-input-row">
+              <div class="social-brand-badge brand-youtube" title="YouTube">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#FFF">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </div>
+              <input id="coachYtInput" class="social-input-clean" value="Eder Fitness TV" placeholder="Tu canal de YouTube" />
+              <span class="social-network-tag">YouTube</span>
+            </div>
+          </div>
+
+          <!-- 6. CONEXIÓN EN VIVO A SPOTIFY API (CUENTA & PLAYLISTS REALES) -->
+          <div class="spotify-account-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="mini-logo-box brand-spotify">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#000">
+                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                  </svg>
+                </div>
+                <span style="font-family:'Outfit',sans-serif;font-size:13px;font-weight:800;color:#FFF;">Spotify API • Playlists de tu Cuenta</span>
+              </div>
+              <button class="sim-pill" style="background:var(--spotify);color:#041014;font-weight:800;" onclick="connectSpotifyAccountSim()">
+                <span id="spotifyConnStatus">✓ Cuenta Conectada</span>
+              </button>
+            </div>
+
+            <p style="font-size:11px;color:var(--text-sec);margin-bottom:8px;">
+              Selecciona una playlist de tu cuenta de Spotify o pega el link de cualquier playlist real para incrustar el reproductor oficial:
+            </p>
+
+            <!-- Selector de Playlists traídas de la cuenta -->
+            <div id="coachSpotifyPlaylistsList"></div>
+
+            <div style="margin-top:10px;">
+              <input id="coachCustomSpotifyUrl" class="native-input" style="padding:10px 12px;font-size:12px;" placeholder="O pega aquí un link de Spotify (https://open.spotify.com/playlist/...)" oninput="handleCustomSpotifyLinkInput(this.value)" />
+            </div>
+          </div>
+
+          <button class="btn-coral-lg" onclick="createAndLaunchCoachCommunity()">
+            <span>🚀 Crear Mi Comunidad e Ir a Mi Panel</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           PANTALLA PRINCIPAL 1: INICIO
+           ===================================================================== -->
+      <div id="screen-home" class="app-screen">
+        <div class="native-header">
+          <div>
+            <div class="header-title-lg" id="homeWelcomeTitle">¡Bienvenido, Eder! 👋</div>
+            <div class="header-sub-sm" id="homeRoleSub">Listo para entrenar hoy</div>
+          </div>
+          <div class="avatar-btn" onclick="openLoginScreen()" title="Cambiar cuenta">
+            <img id="topAvatarImg" src="https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=200&q=80" alt="Perfil" />
+          </div>
+        </div>
+
+        <div class="screen-scroll">
+          <div class="spacious-card" style="background:linear-gradient(135deg, #FF416C 0%, #6366F1 100%);border:none;padding:20px;cursor:pointer;" onclick="navigateToTab('community')">
+            <span style="background:rgba(0,0,0,0.3);padding:4px 10px;border-radius:99px;font-size:10px;font-weight:800;">🔥 CLUBES Y ENTRENADORES</span>
+            <h2 style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:900;margin-top:8px;line-height:1.15;">
+              ¡Únete a una Comunidad Fitness!
+            </h2>
+            <p style="font-size:12.5px;color:rgba(255,255,255,0.92);margin-top:6px;line-height:1.45;">
+              Entra al club de tu instructor favorito, descarga sus rutinas con video, escucha su <strong>Playlist oficial de Spotify</strong> ahí mismo y comparte fotos.
+            </p>
+            <div style="margin-top:14px;background:#FFF;color:#0B0E17;display:inline-flex;padding:9px 16px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:900;">
+              Ver Top Comunidades →
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 12px;">
+            <span style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;">Rutinas de la App</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+            <div id="btnHomeGym" class="spacious-card" style="margin:0;padding:16px;cursor:pointer;border:2px solid var(--primary);background:rgba(0,229,163,0.1);" onclick="switchHomeEnvironment('GYM')">
+              <div style="font-size:24px;margin-bottom:6px;">🏋️‍♂️</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;">En el GYM</div>
+              <div style="font-size:11.5px;color:var(--text-sec);margin-top:2px;">Barras, Poleas y Prensa</div>
+            </div>
+
+            <div id="btnHomeCasa" class="spacious-card" style="margin:0;padding:16px;cursor:pointer;border:2px solid var(--border-subtle);" onclick="switchHomeEnvironment('CASA')">
+              <div style="font-size:24px;margin-bottom:6px;">🏠</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;">En Casa</div>
+              <div style="font-size:11.5px;color:var(--text-sec);margin-top:2px;">Sin Equipo, Silla y HIIT</div>
+            </div>
+          </div>
+
+          <div id="homeRoutinesList"></div>
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           PANTALLA PRINCIPAL 2: COMUNIDADES
+           ===================================================================== -->
+      <div id="screen-community" class="app-screen">
+        <div class="native-header">
+          <div>
+            <div class="header-title-lg">Club & Comunidades 🔥</div>
+            <div class="header-sub-sm">Entrenadores, Rutinas, Spotify y Muro</div>
+          </div>
+          <button class="sim-pill" style="border-color:var(--accent-coral);color:#FDA4AF;" onclick="showScreen('screen-coach-create')">
+            + Crear Comunidad
+          </button>
+        </div>
+
+        <div class="screen-scroll">
+          <!-- VISTA A: EXPLORADOR DE COMUNIDADES -->
+          <div id="commExplorerView">
+            <div class="spacious-card" style="padding:16px;background:linear-gradient(145deg, #192036, #111625);">
+              <div style="font-size:11px;font-weight:800;color:var(--primary);">¿QUÉ ES UNA COMUNIDAD FITNESS?</div>
+              <p style="font-size:12.5px;color:#E2E8F0;margin-top:4px;line-height:1.45;">
+                Los entrenadores crean su grupo (Público o Privado por Solicitud), suben sus rutinas grabadas desde su celular, conectan su <strong>Playlist de Spotify</strong> y sus redes sociales.
+              </p>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;">🏆 Top Comunidades Destacadas</span>
+              <span style="font-size:11px;color:var(--primary);font-weight:700;">Desliza ↔</span>
+            </div>
+
+            <div class="carousel-track" id="topClubsCarousel"></div>
+
+            <div style="margin-bottom:16px;">
+              <input id="clubSearchField" class="native-input" placeholder="🔍 Buscar comunidad o nombre del coach..." oninput="renderClubsExplorer()" />
+            </div>
+
+            <div id="allClubsList"></div>
+          </div>
+
+          <!-- VISTA B: ADENTRO DE UNA COMUNIDAD -->
+          <div id="commInsideView" style="display:none;">
+            <button class="sim-pill" style="margin-bottom:12px;padding:7px 14px;" onclick="backToClubsExplorer()">
+              ← Volver a Todas las Comunidades
+            </button>
+
+            <div class="coach-profile-hero" id="insideClubHero"></div>
+
+            <div id="privateLockBox" class="spacious-card" style="display:none;text-align:center;border-color:var(--accent-coral);">
+              <div style="font-size:32px;margin-bottom:8px;">🔒</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;">Comunidad Privada por Invitación</div>
+              <p style="font-size:12.5px;color:var(--text-sec);margin:6px 0 16px;line-height:1.45;">
+                El entrenador revisa personalmente cada solicitud antes de darte acceso a sus rutinas, videos y chat.
+              </p>
+              <button id="btnSendJoinReq" class="btn-coral-lg" onclick="sendJoinRequestToCoach()">
+                <span>📩 Enviar Solicitud para Unirme</span>
+              </button>
+            </div>
+
+            <div id="unlockedClubContent">
+              <div class="native-tabs">
+                <button class="n-tab active" id="cTabProfile" onclick="switchInsideClubTab('profile')">👤 Coach</button>
+                <button class="n-tab" id="cTabRoutines" onclick="switchInsideClubTab('routines')">📹 Rutinas</button>
+                <button class="n-tab" id="cTabWall" onclick="switchInsideClubTab('wall')">💬 Muro</button>
+                <button class="n-tab" id="cTabRequests" onclick="switchInsideClubTab('requests')">📩 Admin</button>
+              </div>
+
+              <div id="clubSectionProfile"></div>
+              <div id="clubSectionRoutines" style="display:none;"></div>
+              <div id="clubSectionWall" style="display:none;"></div>
+              <div id="clubSectionRequests" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           PANTALLA PRINCIPAL 3: ENTRENAR
+           ===================================================================== -->
+      <div id="screen-workout" class="app-screen">
+        <div class="native-header">
+          <div>
+            <div class="header-title-lg" id="workoutScreenHeader">Preparar Entreno 🏋️‍♂️</div>
+            <div class="header-sub-sm" id="workoutScreenSub">El reloj inicia hasta que tú lo indiques</div>
+          </div>
+        </div>
+
+        <div class="screen-scroll">
+          <div id="workoutStep1Prep">
+            <div class="spacious-card" style="background:rgba(0,229,163,0.08);border-color:var(--primary);padding:16px;">
+              <div style="font-size:10.5px;font-weight:800;color:var(--primary);">PASO 1 DE 2 • RELOJ EN ESPERA (00:00)</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;margin-top:3px;" id="prepRoutineName">
+                Push Day Pro
+              </div>
+              <p style="font-size:12px;color:var(--text-sec);margin-top:3px;">
+                Marca los ejercicios que harás hoy y mira su video Rayos-X antes de iniciar el cronómetro.
+              </p>
+            </div>
+
+            <div id="prepExerciseItems"></div>
+
+            <button class="btn-primary-lg" id="btnStartClockNow" onclick="launchActiveStopwatch()">
+              <span>▶ Iniciar Cronómetro Ahora</span>
+            </button>
+          </div>
+
+          <div id="workoutStep2Active" style="display:none;">
+            <div class="spacious-card" style="border-color:var(--primary);">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <div>
+                  <span style="font-size:10px;font-weight:800;color:var(--primary);" id="activeClockBadge">● CRONÓMETRO ACTIVO</span>
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:800;color:#FFF;" id="activeClockDigits">00:00</div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button class="sim-pill" style="padding:10px 14px;font-size:12px;" id="btnPauseClock" onclick="pauseResumeClock()">⏸ Pausar</button>
+                  <button class="sim-pill" style="background:var(--primary);color:#041014;padding:10px 14px;font-size:12px;font-weight:800;" onclick="completeAndSaveWorkout()">✓ Terminar</button>
+                </div>
+              </div>
+
+              <div id="restBoxActive" style="display:none;background:#090D16;border:1px solid var(--primary);border-radius:16px;padding:12px;margin-top:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:11px;font-weight:800;color:var(--primary);">⏱ DESCANSO ENTRE SERIES</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;" id="restDigits">01:30</span>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:8px;">
+                  <button class="sim-pill" onclick="changeRest(-15)">-15s</button>
+                  <button class="sim-pill" onclick="changeRest(15)">+15s</button>
+                  <button class="sim-pill" style="margin-left:auto;background:var(--primary);color:#041014;" onclick="skipRest()">Saltar</button>
+                </div>
+              </div>
+
+              <button class="sim-pill" style="width:100%;margin-top:10px;padding:8px;" onclick="backToStep1Prep()">
+                ← Volver a seleccionar ejercicios
+              </button>
+            </div>
+
+            <div id="activeWorkoutSetsContainer"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           PANTALLA PRINCIPAL 4: RAYOS-X & 1RM
+           ===================================================================== -->
+      <div id="screen-xray" class="app-screen">
+        <div class="native-header">
+          <div>
+            <div class="header-title-lg">Rayos-X 60fps & 1RM 🧬</div>
+            <div class="header-sub-sm">Biomecánica sin esperas y fuerza máxima</div>
+          </div>
+        </div>
+
+        <div class="screen-scroll">
+          <div class="spacious-card">
+            <div style="font-size:10.5px;font-weight:800;color:var(--primary);">CALCULADORA DE FUERZA MÁXIMA (1RM)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:10px;align-items:end;margin-top:10px;">
+              <div>
+                <label class="form-label" style="font-size:9.5px;">Peso (kg)</label>
+                <input id="calcW" class="native-input" style="padding:10px;text-align:center;" value="80" oninput="update1RMCalc()" />
+              </div>
+              <div>
+                <label class="form-label" style="font-size:9.5px;">Reps</label>
+                <input id="calcR" class="native-input" style="padding:10px;text-align:center;" value="8" oninput="update1RMCalc()" />
+              </div>
+              <div style="background:rgba(0,229,163,0.14);border:1px solid var(--primary);border-radius:16px;padding:10px;text-align:center;">
+                <div style="font-size:9px;font-weight:800;color:var(--primary);">TU 1RM</div>
+                <div id="calc1RMOut" style="font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:800;">101 kg</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;margin-bottom:12px;">
+            Catálogo de Ejercicios en Rayos-X
+          </div>
+          <div id="xrayCatalogList"></div>
+        </div>
+      </div>
+
+      <!-- ==================== BARRA DE NAVEGACIÓN INFERIOR ==================== -->
+      <div id="bottomNavContainer" class="bottom-nav-wrap" style="display:none;">
+        <div class="bottom-nav">
+          <button class="b-nav-item active" id="bnav-home" onclick="navigateToTab('home')">
+            <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            <span>Inicio</span>
+          </button>
+          <button class="b-nav-item" id="bnav-community" onclick="navigateToTab('community')">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Comunidad</span>
+          </button>
+          <button class="b-nav-item" id="bnav-workout" onclick="navigateToTab('workout')">
+            <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Entrenar</span>
+          </button>
+          <button class="b-nav-item" id="bnav-xray" onclick="navigateToTab('xray')">
+            <svg viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            <span>Rayos-X</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================== MODAL SUBIR RUTINA / VIDEO + SPOTIFY ==================== -->
+      <div id="sheetUploadRoutine" class="sheet-backdrop">
+        <div class="sheet-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;">📹 Subir Rutina o Video a mi Comunidad</span>
+            <button class="sim-pill" onclick="closeUploadSheet()">✕</button>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Título de la Rutina o Ejercicio</label>
+            <input id="coachNewRoutineTitle" class="native-input" placeholder="Ej. Destructor de Pecho & Tríceps Pesado" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Instrucciones para tus Alumnos</label>
+            <input id="coachNewRoutineDesc" class="native-input" placeholder="Ej. 4 series de 8-10 reps controlando 3 seg la bajada..." />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">📱 Subir Video / Foto desde tu Celular o Rayos-X</label>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button class="sim-pill" style="padding:10px 14px;border-color:var(--primary);color:var(--primary);" onclick="document.getElementById('coachVideoFile').click()">
+                📁 Elegir Video/Foto de mi Galería
+              </button>
+              <input type="file" id="coachVideoFile" accept="video/*,image/*" style="display:none" onchange="handleCoachRoutineMediaUpload(event)" />
+              <span id="uploadedMediaLabel" style="font-size:11px;color:var(--text-sec);align-self:center;">O usa el Rayos-X de abajo</span>
+            </div>
+
+            <select id="coachNewRoutinePose" class="native-input">
+              <option value="bench_press">🧬 Demostración Rayos-X: Press de Banca</option>
+              <option value="squat">🧬 Demostración Rayos-X: Sentadilla Libre</option>
+              <option value="lat_pulldown">🧬 Demostración Rayos-X: Jalón al Pecho</option>
+              <option value="bicep_curl">🧬 Demostración Rayos-X: Curl de Bíceps</option>
+              <option value="hip_thrust">🧬 Demostración Rayos-X: Hip Thrust Glúteo</option>
+              <option value="chair_dips">🧬 Demostración Rayos-X: Fondos en Silla (Casa)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="color:var(--spotify);">🎵 Selecciona o pega tu Playlist de Spotify</label>
+            <select id="coachNewRoutineSpotifyId" class="native-input">
+              <option value="37i9dQZF1DX76Wlfdnj7AP">🎧 Spotify Oficial: Beast Mode (150 canciones)</option>
+              <option value="37i9dQZF1DWTl4y3vgJOXW">🔥 Spotify Oficial: Phonk Workout / PR Mode</option>
+              <option value="37i9dQZF1DWUVpAXiEPK8P">⚡ Spotify Oficial: Power Workout & Heavy Lifts</option>
+              <option value="37i9dQZF1DX70RN3TfWWJh">🏃‍♂️ Spotify Oficial: Cardio & HIIT Energy</option>
+            </select>
+          </div>
+
+          <button class="btn-primary-lg" onclick="publishCoachRoutineNow()">
+            <span>🚀 Publicar en Mi Comunidad</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================== MODAL DEMO RAYOS-X 60FPS & FOTO REAL ==================== -->
+      <div id="sheetVideoDemo" class="sheet-backdrop">
+        <div class="sheet-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <span style="font-size:10px;font-weight:800;color:var(--primary);">DEMOSTRACIÓN TÉCNICA 60 FPS</span>
+              <div id="modalExTitle" style="font-family:'Outfit',sans-serif;font-size:19px;font-weight:800;">Press de Banca</div>
+            </div>
+            <button class="sim-pill" onclick="closeDemoModal()">✕ Cerrar</button>
+          </div>
+
+          <div class="native-tabs" style="margin:12px 0 8px;">
+            <button class="n-tab active" id="tabDemoBio" onclick="setModalDemoMode('bio')">🧬 Rayos-X 60fps</button>
+            <button class="n-tab" id="tabDemoPhoto" onclick="setModalDemoMode('photo')">📸 Foto Gimnasio</button>
+          </div>
+
+          <div class="media-stage">
+            <canvas id="biomechCanvas" width="350" height="230"></canvas>
+            <img id="realGymPhoto" src="" alt="Demo" />
+          </div>
+
+          <div id="modalExCues" style="font-size:12.5px;color:#E2E8F0;line-height:1.5;"></div>
+        </div>
+      </div>
+
+      <!-- ==================== MODAL INSPECTOR DE BASE DE DATOS (LOCAL + SUPABASE SQL) ==================== -->
+      <div id="sheetDatabaseInspector" class="sheet-backdrop">
+        <div class="sheet-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div>
+              <span style="font-size:10px;font-weight:800;color:var(--primary);">PERSISTENCIA ACTIVA • LOCAL + SUPABASE SQL ($0 USD)</span>
+              <div style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;">🗄️ Estado de la Base de Datos</div>
+            </div>
+            <button class="sim-pill" onclick="closeDatabaseInspector()">✕ Cerrar</button>
+          </div>
+
+          <p style="font-size:11.5px;color:var(--text-sec);line-height:1.4;margin-bottom:10px;">
+            Todo lo que creas (comunidades, rutinas, fotos, muro y solicitudes) <strong>ya se guarda automáticamente</strong> aunque recargues con <code>F5</code>, y tiene listo su esquema PostgreSQL en <code>supabase_schema.sql</code>.
+          </p>
+
+          <div id="dbStatsSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div>
+
+          <div class="native-tabs" style="margin-bottom:10px;">
+            <button class="n-tab active" id="dbTabLive" onclick="switchDbInspectorTab('live')">📊 Tablas en Vivo</button>
+            <button class="n-tab" id="dbTabSql" onclick="switchDbInspectorTab('sql')">⚡ Esquema SQL (Cloud)</button>
+          </div>
+
+          <div id="dbInspectorLiveContent" style="max-height:290px;overflow-y:auto;background:#070A12;border:1px solid var(--border-subtle);border-radius:16px;padding:12px;font-size:11.5px;font-family:monospace;color:#A7F3D0;white-space:pre-wrap;"></div>
+
+          <div id="dbInspectorSqlContent" style="display:none;max-height:290px;overflow-y:auto;background:#070A12;border:1px solid var(--border-subtle);border-radius:16px;padding:12px;font-size:11px;font-family:monospace;color:#93C5FD;white-space:pre-wrap;">-- 7 Tablas creadas en C:\Users\Eder_\FitPulsePro\supabase_schema.sql
+1. profiles (id, display_name, role, avatar_url, tiktok_handle, instagram_handle, youtube_channel)
+2. communities (id, owner_id, name, description, privacy, spotify_playlist_id, members_count)
+3. coach_gallery_photos (id, community_id, photo_url)
+4. community_memberships (id, community_id, user_id, status: 'pending'|'approved'|'rejected')
+5. community_routines (id, community_id, title, video_url, xray_pose, spotify_playlist_id)
+6. community_wall_posts (id, community_id, author_name, content, photo_url, likes_count)
+7. workout_sessions (id, user_id, routine_title, duration_seconds, total_volume_kg)</div>
+
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="sim-pill" style="flex:1;padding:10px;border-color:var(--primary);color:var(--primary);font-weight:800;" onclick="exportDatabaseJson()">
+              📥 Descargar Respaldo (.JSON)
+            </button>
+            <button class="sim-pill" style="padding:10px;border-color:var(--accent-coral);color:#FDA4AF;font-weight:800;" onclick="resetLocalDatabase()">
+              🗑️ Restaurar DB
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // CONFIGURACION DE SERVIDORES EXTERNOS Y LOGOS VECTORIALES (SVG)
+    // =========================================================================
+
+    // URL base del servidor CDN gratuito con mas de 870 ejercicios fotografiados en gimnasio
+    const FREE_EX_CDN = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises';
+
+    // Logos vectoriales oficiales en formato SVG para mostrar en las tarjetas de redes sociales
+    const SVG_LOGO_TIKTOK = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1Z" fill="#FFF"/><path d="M16.5 2h-1v13.67a2.89 2.89 0 0 1-4.5 2.4" stroke="#25F4EE" stroke-width="1.3"/><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25" stroke="#FE2C55" stroke-width="1.3"/></svg>`;
+    const SVG_LOGO_IG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.3"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>`;
+    const SVG_LOGO_YT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="#FFF"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`;
+    const SVG_LOGO_SPOTIFY = `<svg width="14" height="14" viewBox="0 0 24 24" fill="#000"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>`;
+
+    // =========================================================================
+    // INTEGRACION CON SPOTIFY API (CUENTA DEL COACH Y REPRODUCTOR EMBEBIDO)
+    // =========================================================================
+
+    // Lista de playlists reales de Spotify asociadas a la cuenta del entrenador
+    const coachAccountSpotifyPlaylists = [
+      {
+        id: '37i9dQZF1DX76Wlfdnj7AP',
+        name: 'Beast Mode (Spotify Oficial)',
+        tracks: '150 canciones • Hip-Hop & Heavy Gym',
+        cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=160&q=80'
+      },
+      {
+        id: '37i9dQZF1DWTl4y3vgJOXW',
+        name: 'Phonk Workout / PR Mode 180 BPM',
+        tracks: '100 canciones • Drift Phonk & PRs',
+        cover: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=160&q=80'
+      },
+      {
+        id: '37i9dQZF1DWUVpAXiEPK8P',
+        name: 'Power Workout & Heavy Lifts',
+        tracks: '95 canciones • Energía Pura',
+        cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=160&q=80'
+      }
+    ];
+    // Variables que guardan cual playlist de Spotify tiene seleccionada el Coach actualmente
+    let selectedCoachPlaylistId = '37i9dQZF1DX76Wlfdnj7AP';
+    let selectedCoachPlaylistName = 'Beast Mode (Spotify Oficial)';
+
+    // Dibuja en pantalla la lista de playlists de la cuenta de Spotify del Coach
+    function renderCoachSpotifyPicker() {
+      const container = document.getElementById('coachSpotifyPlaylistsList');
+      if (!container) return;
+      container.innerHTML = coachAccountSpotifyPlaylists.map(pl => {
+        const isSel = pl.id === selectedCoachPlaylistId;
+        return `
+          <div class="spotify-playlist-Item ${isSel ? 'selected' : ''}" onclick="selectCoachSpotifyPlaylist('${pl.id}', '${pl.name}')">
+            <img src="${pl.cover}" alt="${pl.name}" />
+            <div style="flex:1;">
+              <div style="font-size:12.5px;font-weight:800;color:#FFF;">${pl.name}</div>
+              <div style="font-size:10.5px;color:var(--text-sec);">${pl.tracks}</div>
+            </div>
+            <span style="font-size:11px;font-weight:800;color:${isSel ? 'var(--spotify)' : 'var(--text-muted)'};">
+              ${isSel ? '✓ Conectada' : 'Elegir'}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Cambia la playlist activa cuando el Coach hace clic sobre una opcion de la lista
+    function selectCoachSpotifyPlaylist(id, name) {
+      selectedCoachPlaylistId = id;
+      selectedCoachPlaylistName = name;
+      renderCoachSpotifyPicker();
+      showToast(`🎵 Playlist de Spotify seleccionada: ${name}`);
+    }
+
+    // Simula la sincronizacion OAuth con la cuenta de Spotify del entrenador
+    function connectSpotifyAccountSim() {
+      document.getElementById('spotifyConnStatus').textContent = '🔄 Sincronizando...';
+      setTimeout(() => {
+        document.getElementById('spotifyConnStatus').textContent = '✓ Cuenta Sincronizada';
+        showToast('🟢 ¡Tus playlists de Spotify se sincronizaron con éxito!');
+      }, 600);
+    }
+
+    // Conecta en tiempo real con la API publica oEmbed de Spotify cuando el Coach pega un enlace de playlist
+    function handleCustomSpotifyLinkInput(val) {
+      // Extrae el codigo de la playlist a partir del enlace pegado
+      const match = val.trim().match(/playlist\/([a-zA-Z0-9]+)/);
+      if (match && match[1]) {
+        const pid = match[1];
+        selectedCoachPlaylistId = pid;
+        // Consulta los metadatos reales (titulo y portada) directamente en el servidor de Spotify
+        fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent('https://open.spotify.com/playlist/' + pid)}`)
+          .then(r => r.json())
+          .then(data => {
+            if (data && data.title) {
+              selectedCoachPlaylistName = data.title;
+              coachAccountSpotifyPlaylists.unshift({
+                id: pid,
+                name: data.title,
+                tracks: 'Importada desde tu link de Spotify ✓',
+                cover: data.thumbnail_url || coachAccountSpotifyPlaylists[0].cover
+              });
+              renderCoachSpotifyPicker();
+              showToast(`🟢 Playlist real detectada vía Spotify API: "${data.title}"`);
+            }
+          })
+          .catch(() => {
+            selectedCoachPlaylistName = 'Mi Playlist Personalizada de Spotify';
+            showToast('🟢 Link de Playlist de Spotify vinculado');
+          });
+      }
+    }
+
+    // =========================================================================
+    // ESTADO GLOBAL DE SESION Y TABLA LOCAL DE COMUNIDADES (BASE DE DATOS)
+    // =========================================================================
+    let loginRole = 'athlete';      // Define el rol elegido en el login: 'athlete' o 'coach'
+    let currentUserName = 'Eder';   // Nombre del usuario activo en la sesion
+    let newCommPrivacy = 'invite';  // Privacidad elegida al crear comunidad: 'public' o 'invite'
+    let customUploadedCover = 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=700&q=80';
+    let customUploadedAvatar = 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=240&q=80';
+    let customRoutineMediaUrl = ''; // Guarda la URL temporal del video subido desde el celular
+
+    // Arreglo principal que representa la tabla de comunidades en la base de datos
+    let communitiesDB = [
+      {
+        id: 'club-carlos',
+        name: 'Club Aesthetics & Powerbuilding MX',
+        coachName: 'Coach Carlos "Beast" Vega',
+        coachBio: 'Entrenador certificado en hipertrofia y fuerza. +10 años preparando atletas naturales.',
+        avatar: 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=240&q=80',
+        cover: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=700&q=80',
+        membersCount: 14820,
+        privacy: 'public',
+        joined: true,
+        isMyOwnedClub: false,
+        gradient: 'linear-gradient(135deg, #FF416C 0%, #8B5CF6 100%)',
+        ig: '@carlos.beast.coach',
+        tiktok: '@beastmode_mx',
+        yt: 'BeastMode Vega TV',
+        spotify: 'Phonk Workout / PR Mode',
+        spotifyId: '37i9dQZF1DWTl4y3vgJOXW',
+        gallery: [
+          'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=300&q=80',
+          'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=300&q=80',
+          'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=300&q=80'
+        ],
+        routines: [
+          {
+            id: 'cr-101',
+            title: 'Método Bilbo + Press de Banca Pesado',
+            desc: '1 serie explosiva de 18 reps + 3 series pesadas de 6-8 reps con 2 min de descanso.',
+            pose: 'bench_press',
+            slug: 'Barbell_Bench_Press_-_Medium_Grip',
+            spotifyId: '37i9dQZF1DWTl4y3vgJOXW',
+            likes: 184
+          }
+        ],
+        wall: [
+          {
+            id: 'w-1',
+            author: 'Marco Gymrat',
+            time: 'Hace 15 min',
+            text: '¡Hoy salieron los 100kg en banca gracias a los consejos del Coach Carlos! 💪🔥',
+            photo: 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Bench_Press_-_Medium_Grip/1.jpg',
+            likes: 32
+          }
+        ],
+        pendingRequests: [
+          { id: 'req-1', user: 'Luis Hernández', msg: 'Hola Coach, quiero entrar para mejorar mi press de banca.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80' }
+        ]
+      },
+      {
+        id: 'club-valeria',
+        name: 'Glute Lab & Pierna Esculpida VIP',
+        coachName: 'Instructora Valeria FitCoach',
+        coachBio: 'Especialista en biomecánica femenina, glúteo e isquiotibiales en GYM y Casa.',
+        avatar: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=240&q=80',
+        cover: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=700&q=80',
+        membersCount: 11450,
+        privacy: 'invite',
+        joined: false,
+        isMyOwnedClub: false,
+        gradient: 'linear-gradient(135deg, #EC4899 0%, #6366F1 100%)',
+        ig: '@valeria.glutelab',
+        tiktok: '@valeriafit_oficial',
+        yt: 'Valeria GluteLab',
+        spotify: 'Power Workout & Heavy Lifts',
+        spotifyId: '37i9dQZF1DWUVpAXiEPK8P',
+        gallery: [
+          'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=300&q=80',
+          'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=300&q=80'
+        ],
+        routines: [
+          {
+            id: 'cr-102',
+            title: 'Hip Thrust Pausa 3s + Sentadilla Búlgara',
+            desc: 'Sostén 3 segundos arriba en cada repetición apretando glúteo sin arquear lumbar.',
+            pose: 'hip_thrust',
+            slug: 'Barbell_Glute_Bridge',
+            spotifyId: '37i9dQZF1DWUVpAXiEPK8P',
+            likes: 245
+          }
+        ],
+        wall: [],
+        pendingRequests: []
+      },
+      {
+        id: 'club-elena',
+        name: 'Calistenia & Street Workout en Casa',
+        coachName: 'Instructora Elena Street',
+        coachBio: 'Control corporal, fuerza relativa y abdomen marcado entrenando sin máquinas.',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80',
+        cover: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=700&q=80',
+        membersCount: 8930,
+        privacy: 'public',
+        joined: true,
+        isMyOwnedClub: false,
+        gradient: 'linear-gradient(135deg, #00C6FF 0%, #0072FF 100%)',
+        ig: '@elena.calistenia',
+        tiktok: '@elenastreetworkout',
+        yt: 'Elena Calistenia Pro',
+        spotify: 'Cardio & HIIT Energy',
+        spotifyId: '37i9dQZF1DX70RN3TfWWJh',
+        gallery: [
+          'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=300&q=80'
+        ],
+        routines: [
+          {
+            id: 'cr-103',
+            title: 'EMOM 20 Min: Lagartijas + Fondos en Silla',
+            desc: 'Cada minuto haz 15 lagartijas + 12 fondos en silla en tu sala.',
+            pose: 'chair_dips',
+            slug: 'Bench_Dips',
+            spotifyId: '37i9dQZF1DX70RN3TfWWJh',
+            likes: 139
+          }
+        ],
+        wall: [],
+        pendingRequests: []
+      }
+    ];
+
+    // Identificador de la comunidad seleccionada actualmente y su pestana interna activa
+    let activeClubId = 'club-carlos';
+    let insideClubTab = 'profile';
+
+    // Clave utilizada para guardar la base de datos dentro del navegador (localStorage)
+    const DB_STORAGE_KEY = 'fitpulse_pro_communities_db_v1';
+
+    // Guarda todos los cambios de las comunidades en la memoria local para que no se borren al recargar
+    function saveCommunitiesDBToLocalStorage() {
+      try {
+        localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(communitiesDB));
+      } catch (e) {}
+    }
+
+    // Recupera las comunidades guardadas en el navegador al iniciar la aplicacion
+    function loadCommunitiesDBFromLocalStorage() {
+      try {
+        const raw = localStorage.getItem(DB_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            communitiesDB = parsed;
+            activeClubId = communitiesDB[0].id;
+          }
+        }
+      } catch (e) {}
+    }
+
+    // Abre el modal inspector de base de datos y calcula el total de registros en vivo
+    function openDatabaseInspector() {
+      const totalRoutines = communitiesDB.reduce((sum, c) => sum + (c.routines?.length || 0), 0);
+      const totalPosts = communitiesDB.reduce((sum, c) => sum + (c.wall?.length || 0), 0);
+      document.getElementById('dbStatsSummary').innerHTML = `
+        <div style="background:rgba(0,229,163,0.1);border:1px solid var(--border-focus);border-radius:14px;padding:8px;text-align:center;">
+          <div style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:900;color:var(--primary);">${communitiesDB.length}</div>
+          <div style="font-size:10px;color:var(--text-sec);">Comunidades</div>
+        </div>
+        <div style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.4);border-radius:14px;padding:8px;text-align:center;">
+          <div style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:900;color:#A5B4FC;">${totalRoutines}</div>
+          <div style="font-size:10px;color:var(--text-sec);">Rutinas Subidas</div>
+        </div>
+        <div style="background:rgba(255,65,108,0.12);border:1px solid rgba(255,65,108,0.4);border-radius:14px;padding:8px;text-align:center;">
+          <div style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:900;color:#FDA4AF;">${totalPosts}</div>
+          <div style="font-size:10px;color:var(--text-sec);">Posts en Muro</div>
+        </div>
+      `;
+      document.getElementById('dbInspectorLiveContent').textContent = JSON.stringify({
+        table_communities: communitiesDB.map(c => ({
+          id: c.id,
+          name: c.name,
+          coachName: c.coachName,
+          privacy: c.privacy,
+          membersCount: c.membersCount,
+          socials: { tiktok: c.tiktok, instagram: c.ig, youtube: c.yt },
+          spotifyPlaylistId: c.spotifyId,
+          routinesCount: c.routines?.length || 0,
+          wallPostsCount: c.wall?.length || 0,
+          pendingRequestsCount: c.pendingRequests?.length || 0
+        })),
+        full_records: communitiesDB
+      }, null, 2);
+      document.getElementById('sheetDatabaseInspector').classList.add('open');
+    }
+
+    // Cierra el modal inspector de base de datos
+    function closeDatabaseInspector() {
+      document.getElementById('sheetDatabaseInspector').classList.remove('open');
+    }
+
+    // Alterna entre la pestana de datos JSON en vivo y la pestana del esquema SQL
+    function switchDbInspectorTab(tab) {
+      document.getElementById('dbTabLive').classList.toggle('active', tab === 'live');
+      document.getElementById('dbTabSql').classList.toggle('active', tab === 'sql');
+      document.getElementById('dbInspectorLiveContent').style.display = tab === 'live' ? 'block' : 'none';
+      document.getElementById('dbInspectorSqlContent').style.display = tab === 'sql' ? 'block' : 'none';
+    }
+
+    // Genera y descarga un archivo .json con toda la informacion actual de la base de datos
+    function exportDatabaseJson() {
+      const blob = new Blob([JSON.stringify(communitiesDB, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'fitpulse_pro_database.json';
+      a.click();
+      showToast('📥 Respaldo JSON de la base de datos descargado');
+    }
+
+    // Borra los cambios guardados localmente y restaura la base de datos a su estado original
+    function resetLocalDatabase() {
+      localStorage.removeItem(DB_STORAGE_KEY);
+      location.reload();
+    }
+
+    // =========================================================================
+    // FLUJO DE INICIO DE SESION (DIFERENCIADO ENTRE ATLETA Y COACH)
+    // =========================================================================
+
+    // Cambia el rol seleccionado en la pantalla de bienvenida (Atleta o Coach)
+    function chooseLoginRole(role) {
+      loginRole = role;
+      document.getElementById('cardRoleAthlete').className = 'role-option-row ' + (role === 'athlete' ? 'active-athlete' : '');
+      document.getElementById('cardRoleCoach').className = 'role-option-row ' + (role === 'coach' ? 'active-coach' : '');
+
+      const btn = document.getElementById('loginActionBtn');
+      if (role === 'athlete') {
+        btn.className = 'btn-primary-lg';
+        btn.innerHTML = '<span>Entrar como Atleta →</span>';
+      } else {
+        btn.className = 'btn-coral-lg';
+        btn.innerHTML = '<span>👑 Crear Mi Comunidad de Coach →</span>';
+      }
+    }
+
+    // Procesa el ingreso del usuario: si es Atleta va a Inicio; si es Coach abre el creador de comunidad
+    function handleLoginContinue() {
+      currentUserName = document.getElementById('loginNameField').value.trim() || 'Eder';
+      document.getElementById('homeWelcomeTitle').textContent = `¡Bienvenido, ${currentUserName}! 👋`;
+
+      if (loginRole === 'coach') {
+        document.getElementById('bottomNavContainer').style.display = 'none';
+        document.getElementById('coachCommNameInput').value = `Team ${currentUserName} • Aesthetics & Fuerza`;
+        renderCoachSpotifyPicker();
+        showScreen('screen-coach-create');
+        showToast(`👑 Hola Coach ${currentUserName}, configura tu comunidad`);
+      } else {
+        document.getElementById('homeRoleSub').textContent = 'Perfil: Atleta • Racha de 5 días 🔥';
+        document.getElementById('bottomNavContainer').style.display = 'block';
+        navigateToTab('home');
+        showToast(`¡Bienvenido, ${currentUserName}!`);
+      }
+    }
+
+    // Regresa a la pantalla de seleccion de cuenta / rol
+    function openLoginScreen() {
+      document.getElementById('bottomNavContainer').style.display = 'none';
+      showScreen('screen-login');
+    }
+
+    // =========================================================================
+    // CREADOR DE COMUNIDAD PARA ENTRENADORES (WIZARD DE COACH)
+    // =========================================================================
+
+    // Define si la nueva comunidad sera publica (acceso directo) o privada (por solicitud)
+    function selectPrivacyMode(mode) {
+      newCommPrivacy = mode;
+      document.getElementById('privBtnPublic').classList.toggle('active', mode === 'public');
+      document.getElementById('privBtnInvite').classList.toggle('active', mode === 'invite');
+    }
+
+    // Carga una fotografia desde el celular/PC para usarla como portada de la comunidad
+    function handleCoachCoverUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      customUploadedCover = URL.createObjectURL(file);
+      document.getElementById('previewCoachCoverImg').src = customUploadedCover;
+      showToast('📸 Foto de portada cargada desde tu dispositivo');
+    }
+
+    // Carga una fotografia desde el celular/PC para usarla como avatar del entrenador
+    function handleCoachAvatarUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      customUploadedAvatar = URL.createObjectURL(file);
+      document.getElementById('previewCoachAvatarImg').src = customUploadedAvatar;
+      document.getElementById('topAvatarImg').src = customUploadedAvatar;
+      showToast('📱 Foto de perfil de Coach actualizada');
+    }
+
+    // Crea el registro de la nueva comunidad, lo guarda en la base de datos y abre su panel de control
+    function createAndLaunchCoachCommunity() {
+      const name = document.getElementById('coachCommNameInput').value.trim() || `Team ${currentUserName} Pro`;
+      const desc = document.getElementById('coachCommDescInput').value.trim() || 'Entrenamiento inteligente y resultados reales.';
+      const ig = document.getElementById('coachIgInput').value.trim() || `@${currentUserName.toLowerCase()}.fit`;
+      const tiktok = document.getElementById('coachTiktokInput').value.trim() || `@${currentUserName.toLowerCase()}_gym`;
+      const yt = document.getElementById('coachYtInput').value.trim() || `${currentUserName} Fitness TV`;
+
+      const newClubId = 'club-custom-' + Date.now();
+      const createdClub = {
+        id: newClubId,
+        name: name,
+        coachName: `Coach ${currentUserName}`,
+        coachBio: desc,
+        avatar: customUploadedAvatar,
+        cover: customUploadedCover,
+        membersCount: 1,
+        privacy: newCommPrivacy,
+        joined: true,
+        isMyOwnedClub: true,
+        gradient: 'linear-gradient(135deg, #00E5A3 0%, #6366F1 100%)',
+        ig: ig,
+        tiktok: tiktok,
+        yt: yt,
+        spotify: selectedCoachPlaylistName,
+        spotifyId: selectedCoachPlaylistId,
+        gallery: [
+          customUploadedCover,
+          'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=300&q=80',
+          'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=300&q=80'
+        ],
+        routines: [
+          {
+            id: 'cr-init-' + Date.now(),
+            title: 'Rutina Inaugural del Coach ' + currentUserName,
+            desc: '4 series controladas cuidando la técnica en cada repetición.',
+            pose: 'bench_press',
+            slug: 'Barbell_Bench_Press_-_Medium_Grip',
+            spotifyId: selectedCoachPlaylistId,
+            likes: 12
+          }
+        ],
+        wall: [
+          {
+            id: 'w-init',
+            author: `Coach ${currentUserName}`,
+            time: 'Justo ahora',
+            text: `¡Bienvenidos a ${name}! Ya dejé conectada mi cuenta de Spotify y mis redes oficiales.`,
+            photo: customUploadedCover,
+            likes: 8
+          }
+        ],
+        pendingRequests: [
+          { id: 'req-a1', user: 'Daniela Soto', msg: '¡Hola Coach! Te vi en TikTok y quiero unirme a tu comunidad.', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80' },
+          { id: 'req-a2', user: 'Roberto Garza', msg: 'Te sigo en Instagram, acéptame en el equipo porfa 💪', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80' }
+        ]
+      };
+
+      communitiesDB.unshift(createdClub);
+      saveCommunitiesDBToLocalStorage();
+      activeClubId = newClubId;
+      document.getElementById('homeRoleSub').textContent = `👑 Fundador de ${name}`;
+      document.getElementById('bottomNavContainer').style.display = 'block';
+
+      burstConfetti();
+      navigateToTab('community');
+      openClubInside(newClubId, 'profile');
+      showToast(`🎉 ¡Comunidad "${name}" creada con tus redes y Spotify!`);
+    }
+
+    // =========================================================================
+    // EXPLORADOR DE COMUNIDADES Y VISTA INTERNA DE CADA CLUB
+    // =========================================================================
+
+    // Dibuja el carrusel horizontal con el Top 3 de comunidades y el buscador en tiempo real
+    function renderClubsExplorer() {
+      document.getElementById('topClubsCarousel').innerHTML = communitiesDB.slice(0, 3).map((c, idx) => {
+        const privTag = c.privacy === 'invite' ? '🔒 Por Invitación' : '🌍 Pública';
+        return `
+          <div class="comm-featured-card" style="background:${c.gradient};" onclick="openClubInside('${c.id}')">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <span style="background:rgba(0,0,0,0.35);padding:4px 10px;border-radius:99px;font-size:10px;font-weight:800;">
+                🏆 TOP #${idx + 1} • ${c.membersCount.toLocaleString()} MIEMBROS
+              </span>
+              <span style="background:rgba(0,0,0,0.35);padding:4px 10px;border-radius:99px;font-size:10px;font-weight:800;">
+                ${privTag}
+              </span>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+              <img src="${c.avatar}" style="width:58px;height:58px;border-radius:18px;object-fit:cover;border:2px solid #FFF;" />
+              <div>
+                <div style="font-size:11px;font-weight:800;opacity:0.9;">${c.coachName}</div>
+                <div style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:900;line-height:1.15;">${c.name}</div>
+              </div>
+            </div>
+
+            <p style="font-size:12px;opacity:0.92;line-height:1.4;margin-bottom:12px;">${c.coachBio}</p>
+
+            <div style="background:rgba(0,0,0,0.3);padding:9px 12px;border-radius:14px;display:flex;justify-content:space-between;align-items:center;font-size:11.5px;font-weight:800;">
+              <span>🎵 Spotify: ${c.spotify.slice(0, 22)}...</span>
+              <span>Ver Club →</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Filtra las comunidades segun el texto escrito por el usuario en el buscador
+      const q = (document.getElementById('clubSearchField')?.value || '').trim().toLowerCase();
+      const filtered = communitiesDB.filter(c =>
+        !q || c.name.toLowerCase().includes(q) || c.coachName.toLowerCase().includes(q)
+      );
+
+      document.getElementById('allClubsList').innerHTML = filtered.map(c => {
+        const privTag = c.privacy === 'invite' ? '🔒 Solicitud requerida' : '🌍 Entrada libre';
+        return `
+          <div class="spacious-card" style="padding:15px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openClubInside('${c.id}')">
+            <img src="${c.avatar}" style="width:54px;height:54px;border-radius:16px;object-fit:cover;" />
+            <div style="flex:1;">
+              <span style="font-size:10px;font-weight:800;color:var(--primary);">${privTag}</span>
+              <div style="font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;color:#FFF;">${c.name}</div>
+              <div style="font-size:11.5px;color:var(--text-sec);">${c.coachName} • ${c.membersCount.toLocaleString()} miembros</div>
+            </div>
+            <button class="sim-pill" style="background:var(--primary);color:#041014;padding:8px 12px;">Entrar</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Regresa de la vista interna de una comunidad al listado general de comunidades
+    function backToClubsExplorer() {
+      document.getElementById('commExplorerView').style.display = 'block';
+      document.getElementById('commInsideView').style.display = 'none';
+      renderClubsExplorer();
+    }
+
+    // Abre una comunidad especifica mostrando sus 4 secciones internas (Coach, Rutinas, Muro y Admin)
+    function openClubInside(clubId, defaultTab = 'profile') {
+      activeClubId = clubId;
+      insideClubTab = defaultTab;
+      document.getElementById('commExplorerView').style.display = 'none';
+      document.getElementById('commInsideView').style.display = 'block';
+      renderActiveClubInside();
+    }
+
+    // Cambia entre las 4 pestanas internas dentro de la comunidad seleccionada
+    function switchInsideClubTab(tab) {
+      insideClubTab = tab;
+      ['profile', 'routines', 'wall', 'requests'].forEach(t => {
+        document.getElementById('cTab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+        document.getElementById('clubSection' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = t === tab ? 'block' : 'none';
+      });
+    }
+
+    // Renderiza toda la informacion de la comunidad activa (portada, redes, Spotify, rutinas, muro y solicitudes)
+    function renderActiveClubInside() {
+      const club = communitiesDB.find(c => c.id === activeClubId) || communitiesDB[0];
+      const privBadge = club.privacy === 'invite' ? '🔒 Privada por Invitación' : '🌍 Comunidad Pública';
+
+      document.getElementById('insideClubHero').innerHTML = `
+        <div class="cp-banner">
+          <img src="${club.cover}" alt="Cover" />
+        </div>
+        <div class="cp-avatar-row">
+          <img class="cp-avatar" src="${club.avatar}" alt="${club.coachName}" />
+          <span class="sim-pill" style="margin-bottom:6px;border-color:var(--primary);color:var(--primary);">
+            ${privBadge} • ${club.membersCount.toLocaleString()} miembros
+          </span>
+        </div>
+        <div class="cp-body">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:900;color:#FFF;">${club.name}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--primary);margin-top:2px;">Entrenador: ${club.coachName}</div>
+          <p style="font-size:12px;color:var(--text-sec);margin-top:6px;line-height:1.45;">${club.coachBio}</p>
+        </div>
+      `;
+
+      // Si la comunidad es privada por invitacion y el usuario aun no es miembro, muestra el bloqueo de solicitud
+      if (club.privacy === 'invite' && !club.joined && !club.isMyOwnedClub) {
+        document.getElementById('privateLockBox').style.display = 'block';
+        document.getElementById('unlockedClubContent').style.display = 'none';
+        return;
+      } else {
+        document.getElementById('privateLockBox').style.display = 'none';
+        document.getElementById('unlockedClubContent').style.display = 'block';
+      }
+
+      switchInsideClubTab(insideClubTab);
+
+      // Pestana 1: Perfil del Coach con logos oficiales (TikTok, Instagram, YouTube), reproductor Spotify y galeria
+      document.getElementById('clubSectionProfile').innerHTML = `
+        <div class="spacious-card">
+          <div style="font-size:11px;font-weight:800;color:var(--primary);">REDES SOCIALES OFICIALES DEL ENTRENADOR</div>
+          <div class="social-pills-row">
+            <div class="social-brand-pill" onclick="showToast('Abriendo TikTok: ${club.tiktok}')">
+              <div class="mini-logo-box brand-tiktok">${SVG_LOGO_TIKTOK}</div>
+              <span>${club.tiktok}</span>
+            </div>
+
+            <div class="social-brand-pill" onclick="showToast('Abriendo Instagram: ${club.ig}')">
+              <div class="mini-logo-box brand-instagram">${SVG_LOGO_IG}</div>
+              <span>${club.ig}</span>
+            </div>
+
+            <div class="social-brand-pill" onclick="showToast('Abriendo YouTube: ${club.yt || 'Canal Oficial'}')">
+              <div class="mini-logo-box brand-youtube">${SVG_LOGO_YT}</div>
+              <span>${club.yt || 'YouTube'}</span>
+            </div>
+          </div>
+
+          <!-- REPRODUCTOR OFICIAL EMBEBIDO DE SPOTIFY API -->
+          <div style="margin-top:18px;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+              <div class="mini-logo-box brand-spotify">${SVG_LOGO_SPOTIFY}</div>
+              <span style="font-size:11px;font-weight:800;color:var(--spotify);">PLAYLIST OFICIAL EN SPOTIFY (REPRODUCTOR EN VIVO)</span>
+            </div>
+            <iframe
+              style="border-radius:16px;border:none;width:100%;height:152px;background:#000;"
+              src="https://open.spotify.com/embed/playlist/${club.spotifyId || '37i9dQZF1DX76Wlfdnj7AP'}?utm_source=generator&theme=0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy">
+            </iframe>
+          </div>
+
+          <!-- Galería de Fotos del Entrenador -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;">
+            <span style="font-size:11px;font-weight:800;color:var(--text-sec);">FOTOS Y RESULTADOS DEL ENTRENADOR</span>
+            <button class="sim-pill" onclick="document.getElementById('addCoachGalleryFile').click()">+ Subir Foto</button>
+            <input type="file" id="addCoachGalleryFile" accept="image/*" style="display:none" onchange="handleAddCoachGalleryPhoto(event)" />
+          </div>
+
+          <div class="coach-gallery-strip">
+            ${club.gallery.map(imgUrl => `<img class="coach-gallery-img" src="${imgUrl}" />`).join('')}
+          </div>
+
+          <button class="btn-primary-lg" style="margin-top:16px;" onclick="switchInsideClubTab('routines')">
+            <span>Ver Rutinas y Videos del Coach (${club.routines.length}) →</span>
+          </button>
+        </div>
+      `;
+
+      // Pestana 2: Rutinas y videos subidos por el Coach + reproductor Spotify integrado en cada tarjeta
+      document.getElementById('clubSectionRoutines').innerHTML = `
+        <button class="btn-coral-lg" style="margin-bottom:16px;" onclick="openUploadSheet()">
+          <span>📹 + Subir Nueva Rutina / Video desde mi Celular</span>
+        </button>
+
+        ${club.routines.map(r => `
+          <div class="spacious-card">
+            <div style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;color:#FFF;">${r.title}</div>
+            <p style="font-size:12px;color:var(--text-sec);margin:6px 0 12px;line-height:1.45;">${r.desc}</p>
+
+            ${r.customVideo ? `
+              <video src="${r.customVideo}" controls style="width:100%;height:170px;border-radius:16px;background:#000;margin-bottom:12px;"></video>
+            ` : ''}
+
+            <!-- Reproductor oficial de Spotify incrustado dentro de la tarjeta de la rutina -->
+            <div style="margin-bottom:12px;">
+              <iframe
+                style="border-radius:14px;border:none;width:100%;height:80px;background:#000;"
+                src="https://open.spotify.com/embed/playlist/${r.spotifyId || club.spotifyId || '37i9dQZF1DX76Wlfdnj7AP'}?utm_source=generator&theme=0"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy">
+              </iframe>
+            </div>
+
+            <div style="display:flex;gap:8px;">
+              <button class="sim-pill" style="padding:10px 14px;" onclick="openDemoModal('${r.title}', '${r.pose}', '${r.slug}', ['${r.desc}'])">
+                🧬 Ver Video / Rayos-X
+              </button>
+              <button class="sim-pill" style="flex:1;background:var(--primary);color:#041014;font-weight:800;padding:10px;" onclick="startClubRoutineNow('${r.title}', '${r.pose}', '${r.slug}')">
+                ⚡ Entrenar Esta Rutina →
+              </button>
+            </div>
+          </div>
+        `).join('')}
+      `;
+
+      // Pestana 3: Muro social de la comunidad para compartir experiencias, fotos y moderacion del Coach
+      document.getElementById('clubSectionWall').innerHTML = `
+        <div class="spacious-card" style="padding:14px;">
+          <input id="clubWallInput" class="native-input" style="margin-bottom:10px;padding:11px 14px;" placeholder="Comparte tu experiencia o foto en el muro..." />
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <button class="sim-pill" onclick="document.getElementById('wallPhotoFile').click()">📸 Subir Foto de mi Celular</button>
+            <input type="file" id="wallPhotoFile" accept="image/*" style="display:none" onchange="handleWallPhotoUpload(event)" />
+            <button class="sim-pill" style="background:var(--primary);color:#041014;padding:8px 16px;font-weight:800;" onclick="postToClubWall()">Publicar</button>
+          </div>
+        </div>
+
+        ${club.wall.map((w, idx) => `
+          <div class="spacious-card" style="padding:15px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-weight:800;font-size:13px;">💬 ${w.author}</span>
+              <span style="font-size:10.5px;color:var(--text-muted);">${w.time}</span>
+            </div>
+            <p style="font-size:12.5px;color:#E2E8F0;line-height:1.45;margin-bottom:10px;">${w.text}</p>
+            ${w.photo ? `<img src="${w.photo}" style="width:100%;height:165px;object-fit:cover;border-radius:16px;margin-bottom:10px;" />` : ''}
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <button class="sim-pill" onclick="likeWallItem(${idx})">❤️ ${w.likes} Likes</button>
+              <button class="sim-pill" style="color:#FDA4AF;border-color:var(--accent-coral);" onclick="deleteWallItem(${idx})">🗑️ Eliminar (Coach)</button>
+            </div>
+          </div>
+        `).join('')}
+      `;
+
+      // Pestana 4: Panel de administracion donde el Coach acepta o rechaza solicitudes de acceso
+      document.getElementById('clubSectionRequests').innerHTML = `
+        <div class="spacious-card">
+          <div style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;margin-bottom:4px;">
+            📩 Solicitudes para Unirse (${club.pendingRequests.length})
+          </div>
+          <p style="font-size:12px;color:var(--text-sec);margin-bottom:14px;">
+            Acepta o rechaza a los usuarios que piden entrar a tu comunidad privada:
+          </p>
+
+          ${club.pendingRequests.length === 0 ? `
+            <div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px;">
+              No hay solicitudes pendientes por revisar.
+            </div>
+          ` : club.pendingRequests.map((req, rIdx) => `
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--border-subtle);">
+              <img src="${req.avatar}" style="width:44px;height:44px;border-radius:14px;object-fit:cover;" />
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:800;color:#FFF;">${req.user}</div>
+                <div style="font-size:11px;color:var(--text-sec);">${req.msg}</div>
+              </div>
+              <button class="sim-pill" style="background:var(--primary);color:#041014;font-weight:800;" onclick="resolveJoinRequest(${rIdx}, true)">✓ Aceptar</button>
+              <button class="sim-pill" style="color:#FDA4AF;border-color:var(--accent-coral);" onclick="resolveJoinRequest(${rIdx}, false)">✕ Negar</button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // Envia una solicitud de ingreso cuando un atleta intenta entrar a una comunidad privada
+    function sendJoinRequestToCoach() {
+      const club = communitiesDB.find(c => c.id === activeClubId);
+      const btn = document.getElementById('btnSendJoinReq');
+      btn.innerHTML = '<span>⏳ Solicitud Enviada • (Toca aquí para simular que el Coach te aceptó)</span>';
+      btn.onclick = () => {
+        club.joined = true;
+        club.membersCount += 1;
+        saveCommunitiesDBToLocalStorage();
+        burstConfetti();
+        renderActiveClubInside();
+        showToast(`🎉 ¡${club.coachName} aceptó tu solicitud! Bienvenido al club.`);
+      };
+      showToast('📩 Solicitud enviada al entrenador');
+    }
+
+    // Permite al Coach aceptar (true) o negar (false) una solicitud pendiente y actualiza la base de datos
+    function resolveJoinRequest(reqIdx, accepted) {
+      const club = communitiesDB.find(c => c.id === activeClubId);
+      const req = club.pendingRequests[reqIdx];
+      club.pendingRequests.splice(reqIdx, 1);
+      if (accepted) {
+        club.membersCount += 1;
+        burstConfetti();
+        showToast(`✅ Aceptaste a ${req.user} en tu comunidad`);
+      } else {
+        showToast(`❌ Solicitud de ${req.user} rechazada`);
+      }
+      saveCommunitiesDBToLocalStorage();
+      renderActiveClubInside();
+    }
+
+    // Agrega una nueva fotografia desde el celular a la galeria de resultados del Coach
+    function handleAddCoachGalleryPhoto(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const club = communitiesDB.find(c => c.id === activeClubId);
+      club.gallery.unshift(URL.createObjectURL(file));
+      saveCommunitiesDBToLocalStorage();
+      renderActiveClubInside();
+      showToast('📸 Nueva foto agregada a tu galería de Coach');
+    }
+
+    // Abre y cierra el modal para que el Coach suba una nueva rutina con video y playlist de Spotify
+    function openUploadSheet() {
+      customRoutineMediaUrl = '';
+      document.getElementById('uploadedMediaLabel').textContent = 'O usa el Rayos-X de abajo';
+      document.getElementById('sheetUploadRoutine').classList.add('open');
+    }
+    function closeUploadSheet() {
+      document.getElementById('sheetUploadRoutine').classList.remove('open');
+    }
+
+    // Procesa el archivo de video o imagen seleccionado desde la galeria del telefono del Coach
+    function handleCoachRoutineMediaUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      customRoutineMediaUrl = URL.createObjectURL(file);
+      document.getElementById('uploadedMediaLabel').textContent = `✓ Archivo cargado: ${file.name}`;
+      showToast('📱 Video/Foto cargado desde tu celular');
+    }
+
+    // Publica la nueva rutina del Coach en la comunidad y la guarda en la base de datos local
+    function publishCoachRoutineNow() {
+      const club = communitiesDB.find(c => c.id === activeClubId) || communitiesDB[0];
+      const title = document.getElementById('coachNewRoutineTitle').value.trim() || 'Nueva Rutina del Coach';
+      const desc = document.getElementById('coachNewRoutineDesc').value.trim() || '4 series controladas al fallo técnico.';
+      const pose = document.getElementById('coachNewRoutinePose').value || 'bench_press';
+      const spId = document.getElementById('coachNewRoutineSpotifyId').value || club.spotifyId;
+
+      const slugMap = {
+        bench_press: 'Barbell_Bench_Press_-_Medium_Grip',
+        squat: 'Barbell_Full_Squat',
+        lat_pulldown: 'Wide-Grip_Lat_Pulldown',
+        bicep_curl: 'Incline_Dumbbell_Curl',
+        hip_thrust: 'Barbell_Glute_Bridge',
+        chair_dips: 'Bench_Dips'
+      };
+
+      club.routines.unshift({
+        id: 'cr-' + Date.now(),
+        title: title,
+        desc: desc,
+        pose: pose,
+        slug: slugMap[pose] || 'Barbell_Bench_Press_-_Medium_Grip',
+        spotifyId: spId,
+        customVideo: customRoutineMediaUrl,
+        likes: 1
+      });
+
+      saveCommunitiesDBToLocalStorage();
+      closeUploadSheet();
+      burstConfetti();
+      renderActiveClubInside();
+      showToast('🚀 ¡Rutina publicada con su Playlist de Spotify!');
+    }
+
+    // Variables y funciones para subir fotos y mensajes al muro social de la comunidad
+    let pendingWallPhotoUrl = '';
+    function handleWallPhotoUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      pendingWallPhotoUrl = URL.createObjectURL(file);
+      showToast('📸 Foto lista para publicar en el muro');
+    }
+
+    // Publica un nuevo comentario o fotografia en el muro de la comunidad y lo guarda en la base de datos
+    function postToClubWall() {
+      const club = communitiesDB.find(c => c.id === activeClubId);
+      const txt = document.getElementById('clubWallInput').value.trim();
+      if (!txt && !pendingWallPhotoUrl) return;
+      club.wall.unshift({
+        id: 'w-' + Date.now(),
+        author: currentUserName,
+        time: 'Justo ahora',
+        text: txt || '¡Entrenamiento completado! 🔥',
+        photo: pendingWallPhotoUrl,
+        likes: 1
+      });
+      pendingWallPhotoUrl = '';
+      saveCommunitiesDBToLocalStorage();
+      renderActiveClubInside();
+      showToast('💬 Publicado en el muro de la comunidad');
+    }
+
+    // Incrementa el contador de Likes de una publicacion del muro
+    function likeWallItem(idx) {
+      const club = communitiesDB.find(c => c.id === activeClubId);
+      club.wall[idx].likes += 1;
+      saveCommunitiesDBToLocalStorage();
+      renderActiveClubInside();
+    }
+
+    // Permite al Coach moderador eliminar una publicacion del muro de su comunidad
+    function deleteWallItem(idx) {
+      const club = communitiesDB.find(c => c.id === activeClubId);
+      club.wall.splice(idx, 1);
+      saveCommunitiesDBToLocalStorage();
+      renderActiveClubInside();
+      showToast('🗑️ Publicación eliminada por el Coach');
+    }
+
+    // =========================================================================
+    // RUTINAS DE LA APLICACION (SECCION GIMNASIO Y SECCION EN CASA)
+    // =========================================================================
+    const appRoutines = [
+      {
+        id: 'app-gym-push',
+        env: 'GYM',
+        title: 'Push Day Pro: Pecho, Hombro & Tríceps',
+        meta: '55 min • 460 kcal • Hipertrofia',
+        exercises: [
+          { name: 'Press de Banca Plano con Barra', muscle: 'Pecho Medio', pose: 'bench_press', slug: 'Barbell_Bench_Press_-_Medium_Grip', selected: true, sets: [{ w: 65, r: 10, d: false }, { w: 70, r: 8, d: false }] },
+          { name: 'Press Inclinado 30° con Mancuernas', muscle: 'Pecho Superior', pose: 'incline_press', slug: 'Incline_Dumbbell_Press', selected: true, sets: [{ w: 26, r: 10, d: false }, { w: 28, r: 8, d: false }] },
+          { name: 'Elevaciones Laterales de Hombro', muscle: 'Deltoides Lateral', pose: 'lateral_raise', slug: 'Side_Lateral_Raise', selected: true, sets: [{ w: 12, r: 15, d: false }, { w: 14, r: 12, d: false }] }
+        ]
+      },
+      {
+        id: 'app-gym-legs',
+        env: 'GYM',
+        title: 'Leg Day Titan: Sentadilla, RDL & Glúteo',
+        meta: '60 min • 580 kcal • Fuerza y Pierna',
+        exercises: [
+          { name: 'Sentadilla Libre con Barra en Rack', muscle: 'Cuádriceps y Glúteo', pose: 'squat', slug: 'Barbell_Full_Squat', selected: true, sets: [{ w: 95, r: 8, d: false }, { w: 105, r: 6, d: false }] },
+          { name: 'Hip Thrust Pesado con Barra', muscle: 'Glúteo Mayor', pose: 'hip_thrust', slug: 'Barbell_Glute_Bridge', selected: true, sets: [{ w: 90, r: 12, d: false }, { w: 100, r: 10, d: false }] }
+        ]
+      },
+      {
+        id: 'app-casa-upper',
+        env: 'CASA',
+        title: 'Torso & Brazos en Casa (Sin Equipo)',
+        meta: '35 min • 350 kcal • Piso y Silla',
+        exercises: [
+          { name: 'Lagartijas Estrictas en Piso', muscle: 'Pecho y Core', pose: 'pushup', slug: 'Pushups', selected: true, sets: [{ w: 0, r: 18, d: false }, { w: 0, r: 15, d: false }] },
+          { name: 'Fondos de Tríceps apoyado en Silla', muscle: 'Tríceps', pose: 'chair_dips', slug: 'Bench_Dips', selected: true, sets: [{ w: 0, r: 15, d: false }, { w: 0, r: 12, d: false }] }
+        ]
+      },
+      {
+        id: 'app-casa-legs',
+        env: 'CASA',
+        title: 'Pierna, Glúteo & Abdomen en Casa',
+        meta: '38 min • 390 kcal • Silla y Tapete',
+        exercises: [
+          { name: 'Sentadilla Búlgara Unilateral en Silla', muscle: 'Glúteo y Pierna', pose: 'bulgarian_squat', slug: 'Single_Leg_Squat', selected: true, sets: [{ w: 0, r: 12, d: false }, { w: 0, r: 12, d: false }] },
+          { name: 'Elevación de Piernas Acostado', muscle: 'Abdomen Inferior', pose: 'leg_raise', slug: 'Flat_Bench_Lying_Leg_Raise', selected: true, sets: [{ w: 0, r: 15, d: false }, { w: 0, r: 15, d: false }] }
+        ]
+      }
+    ];
+
+    // Variables de control para el filtro GYM/CASA y el cronometro de entrenamiento en 2 pasos
+    let homeEnv = 'GYM';
+    let currentWorkoutRoutine = appRoutines[0];
+    let clockRunning = false; // El reloj siempre inicia detenido hasta que el usuario presione el boton
+    let clockSeconds = 0;     // Segundos acumulados del entrenamiento activo
+    let restSeconds = 0;      // Segundos restantes del temporizador de descanso entre series
+
+    // Cambia entre las rutinas de Gimnasio (GYM) y las rutinas En Casa (CASA)
+    function switchHomeEnvironment(env) {
+      homeEnv = env;
+      document.getElementById('btnHomeGym').style.borderColor = env === 'GYM' ? 'var(--primary)' : 'var(--border-subtle)';
+      document.getElementById('btnHomeGym').style.background = env === 'GYM' ? 'rgba(0,229,163,0.1)' : 'var(--bg-surface)';
+      document.getElementById('btnHomeCasa').style.borderColor = env === 'CASA' ? 'var(--accent-indigo)' : 'var(--border-subtle)';
+      document.getElementById('btnHomeCasa').style.background = env === 'CASA' ? 'rgba(99,102,241,0.14)' : 'var(--bg-surface)';
+      renderHomeRoutines();
+    }
+
+    // Dibuja las tarjetas de rutinas en la pantalla de Inicio segun la modalidad elegida
+    function renderHomeRoutines() {
+      const list = appRoutines.filter(r => r.env === homeEnv);
+      document.getElementById('homeRoutinesList').innerHTML = list.map(r => `
+        <div class="spacious-card">
+          <span style="font-size:10px;font-weight:800;color:var(--primary);">${r.env === 'GYM' ? '🏋️‍♂️ GIMNASIO' : '🏠 EN CASA'} • ${r.meta}</span>
+          <div style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;margin:4px 0 12px;">${r.title}</div>
+          <div style="display:flex;gap:8px;">
+            <button class="sim-pill" style="padding:10px 14px;" onclick="openDemoModal('${r.exercises[0].name}', '${r.exercises[0].pose}', '${r.exercises[0].slug}', ['Controla la bajada 2 segundos y exhala al subir.'])">
+              🧬 Ver Rayos-X
+            </button>
+            <button class="sim-pill" style="flex:1;background:var(--primary);color:#041014;font-weight:800;padding:10px;" onclick="prepareWorkoutRoutine('${r.id}')">
+              Seleccionar Ejercicios →
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // PASO 1 DEL ENTRENO: Abre la lista de preparacion con el cronometro en 00:00 (en pausa)
+    function prepareWorkoutRoutine(routineId) {
+      currentWorkoutRoutine = appRoutines.find(r => r.id === routineId) || appRoutines[0];
+      clockRunning = false;
+      clockSeconds = 0;
+      document.getElementById('workoutStep1Prep').style.display = 'block';
+      document.getElementById('workoutStep2Active').style.display = 'none';
+      navigateToTab('workout');
+      renderWorkoutPrepList();
+    }
+
+    // Carga una rutina subida por un Coach de comunidad y la lleva al Paso 1 de preparacion
+    function startClubRoutineNow(title, pose, slug) {
+      currentWorkoutRoutine = {
+        id: 'club-r-' + Date.now(),
+        env: 'GYM',
+        title: title,
+        meta: 'Rutina de Comunidad',
+        exercises: [
+          { name: title, muscle: 'Fuerza & Hipertrofia', pose: pose, slug: slug, selected: true, sets: [{ w: 60, r: 10, d: false }, { w: 65, r: 8, d: false }, { w: 70, r: 8, d: false }] }
+        ]
+      };
+      clockRunning = false;
+      clockSeconds = 0;
+      document.getElementById('workoutStep1Prep').style.display = 'block';
+      document.getElementById('workoutStep2Active').style.display = 'none';
+      navigateToTab('workout');
+      renderWorkoutPrepList();
+    }
+
+    // Muestra los ejercicios para que el atleta marque cuales va a hacer y vea su video antes de iniciar el reloj
+    function renderWorkoutPrepList() {
+      document.getElementById('prepRoutineName').textContent = currentWorkoutRoutine.title;
+      let selCount = 0;
+      document.getElementById('prepExerciseItems').innerHTML = currentWorkoutRoutine.exercises.map((ex, idx) => {
+        if (ex.selected) selCount++;
+        return `
+          <div class="spacious-card" style="padding:14px;display:flex;align-items:center;gap:12px;border-color:${ex.selected ? 'var(--primary)' : 'var(--border-subtle)'};">
+            <button class="sim-pill" style="width:30px;height:30px;padding:0;justify-content:center;background:${ex.selected ? 'var(--primary)' : 'var(--bg-elevated)'};color:#041014;font-weight:900;" onclick="togglePrepEx(${idx})">
+              ${ex.selected ? '✓' : ''}
+            </button>
+            <div style="flex:1;cursor:pointer;" onclick="togglePrepEx(${idx})">
+              <div style="font-size:14px;font-weight:800;color:#FFF;">${idx + 1}. ${ex.name}</div>
+              <div style="font-size:11.5px;color:var(--text-sec);">🎯 ${ex.muscle} • ${ex.sets.length} series</div>
+            </div>
+            <button class="sim-pill" style="border-color:var(--accent-cyan);color:var(--accent-cyan);" onclick="openDemoModal('${ex.name}', '${ex.pose}', '${ex.slug}', ['Controla la fase excéntrica y cuida tu postura.'])">
+              🧬 Video
+            </button>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('btnStartClockNow').innerHTML = `<span>▶ Iniciar Cronómetro (${selCount} ejercicios)</span>`;
+    }
+
+    // Marca o desmarca un ejercicio en la pantalla de preparacion
+    function togglePrepEx(idx) {
+      currentWorkoutRoutine.exercises[idx].selected = !currentWorkoutRoutine.exercises[idx].selected;
+      renderWorkoutPrepList();
+    }
+
+    // PASO 2 DEL ENTRENO: Arranca formalmente el cronometro cuando el atleta oprime el boton de iniciar
+    function launchActiveStopwatch() {
+      const chosen = currentWorkoutRoutine.exercises.filter(e => e.selected);
+      if (chosen.length === 0) {
+        showToast('Selecciona al menos 1 ejercicio primero');
+        return;
+      }
+      clockRunning = true;
+      document.getElementById('workoutStep1Prep').style.display = 'none';
+      document.getElementById('workoutStep2Active').style.display = 'block';
+      renderActiveWorkoutSets();
+      showToast('⏱️ ¡Cronómetro en marcha!');
+    }
+
+    // Permite regresar al Paso 1 si el atleta desea agregar o quitar algun ejercicio
+    function backToStep1Prep() {
+      clockRunning = false;
+      document.getElementById('workoutStep1Prep').style.display = 'block';
+      document.getElementById('workoutStep2Active').style.display = 'none';
+    }
+
+    // Pausa o reanuda el cronometro principal del entrenamiento
+    function pauseResumeClock() {
+      clockRunning = !clockRunning;
+      document.getElementById('btnPauseClock').textContent = clockRunning ? '⏸ Pausar' : '▶ Reanudar';
+      document.getElementById('activeClockBadge').textContent = clockRunning ? '● CRONÓMETRO ACTIVO' : '⏸ RELOJ EN PAUSA';
+    }
+
+    // Dibuja la tabla interactiva de series (peso en kg y repeticiones) durante el entrenamiento
+    function renderActiveWorkoutSets() {
+      const chosen = currentWorkoutRoutine.exercises.filter(e => e.selected);
+      document.getElementById('activeWorkoutSetsContainer').innerHTML = chosen.map((ex, exIdx) => `
+        <div class="spacious-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div>
+              <div style="font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;">${ex.name}</div>
+              <div style="font-size:11px;color:var(--primary);">${ex.muscle}</div>
+            </div>
+            <button class="sim-pill" onclick="openDemoModal('${ex.name}', '${ex.pose}', '${ex.slug}', ['Mantén técnica estricta.'])">🧬 Rayos-X</button>
+          </div>
+          ${ex.sets.map((s, sIdx) => `
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:${s.d ? 'rgba(0,229,163,0.12)' : '#0B0E17'};padding:8px 10px;border-radius:12px;">
+              <span style="font-size:12px;font-weight:800;width:48px;">Serie ${sIdx + 1}</span>
+              <input class="native-input" style="padding:7px;text-align:center;" value="${s.w}" />
+              <span style="font-size:11px;color:var(--text-sec);">kg</span>
+              <input class="native-input" style="padding:7px;text-align:center;" value="${s.r}" />
+              <span style="font-size:11px;color:var(--text-sec);">reps</span>
+              <button class="sim-pill" style="background:${s.d ? 'var(--primary)' : 'var(--bg-elevated)'};color:${s.d ? '#041014' : '#FFF'};padding:8px 12px;" onclick="markSetCompleted(${exIdx}, ${sIdx})">✓</button>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+    }
+
+    // Marca una serie como completada y activa automaticamente el reloj de descanso de 90 segundos
+    function markSetCompleted(exIdx, sIdx) {
+      const chosen = currentWorkoutRoutine.exercises.filter(e => e.selected);
+      chosen[exIdx].sets[sIdx].d = !chosen[exIdx].sets[sIdx].d;
+      renderActiveWorkoutSets();
+      if (chosen[exIdx].sets[sIdx].d) {
+        restSeconds = 90;
+        document.getElementById('restBoxActive').style.display = 'block';
+        burstConfetti();
+        showToast('✓ Serie completada • Descanso de 90s activado');
+      }
+    }
+
+    // Suma o resta segundos al temporizador de descanso entre series
+    function changeRest(delta) { restSeconds = Math.max(0, restSeconds + delta); }
+    // Omite el tiempo de descanso restante
+    function skipRest() { restSeconds = 0; document.getElementById('restBoxActive').style.display = 'none'; }
+
+    // Finaliza el entrenamiento activo, detiene el cronometro y regresa a la pantalla principal
+    function completeAndSaveWorkout() {
+      clockRunning = false;
+      burstConfetti();
+      showToast('🎉 ¡Entrenamiento finalizado con éxito!');
+      navigateToTab('home');
+    }
+
+    // =========================================================================
+    // MOTOR GRAFICO BIOMECANICO DE RAYOS-X A 60 FPS (CANVAS 2D) + FOTOS REALES
+    // =========================================================================
+    let activeDemoPose = 'bench_press';
+    let activeDemoSlug = 'Barbell_Bench_Press_-_Medium_Grip';
+    let demoFrameIdx = 0;
+    let demoMode = 'bio';
+    let animTick = 0;
+
+    // Abre el modal demostrativo cargando la animacion especifica del ejercicio y sus fotos reales
+    function openDemoModal(title, pose, slug, cues) {
+      activeDemoPose = pose || 'bench_press';
+      activeDemoSlug = slug || 'Barbell_Bench_Press_-_Medium_Grip';
+      document.getElementById('modalExTitle').textContent = title;
+      document.getElementById('realGymPhoto').src = `${FREE_EX_CDN}/${activeDemoSlug}/0.jpg`;
+      document.getElementById('modalExCues').innerHTML = (cues || []).map(c => `• ${c}`).join('<br/>');
+      setModalDemoMode('bio');
+      document.getElementById('sheetVideoDemo').classList.add('open');
+    }
+
+    // Cierra el modal de demostracion de ejercicio
+    function closeDemoModal() {
+      document.getElementById('sheetVideoDemo').classList.remove('open');
+    }
+
+    // Alterna entre la vista de Rayos-X biomecanico a 60fps y la vista de fotografia real de gimnasio
+    function setModalDemoMode(mode) {
+      demoMode = mode;
+      document.getElementById('tabDemoBio').classList.toggle('active', mode === 'bio');
+      document.getElementById('tabDemoPhoto').classList.toggle('active', mode === 'photo');
+      document.getElementById('biomechCanvas').style.display = mode === 'bio' ? 'block' : 'none';
+      document.getElementById('realGymPhoto').style.display = mode === 'photo' ? 'block' : 'none';
+    }
+
+    // Alterna automaticamente entre la foto inicial (0.jpg) y final (1.jpg) cuando se ve el modo Foto
+    setInterval(() => {
+      if (document.getElementById('sheetVideoDemo').classList.contains('open') && demoMode === 'photo') {
+        demoFrameIdx = demoFrameIdx === 0 ? 1 : 0;
+        document.getElementById('realGymPhoto').src = `${FREE_EX_CDN}/${activeDemoSlug}/${demoFrameIdx}.jpg`;
+      }
+    }, 1100);
+
+    // Referencia al lienzo HTML5 Canvas donde se dibuja el esqueleto biomecanico en movimiento
+    const bioCanvas = document.getElementById('biomechCanvas');
+    const bCtx = bioCanvas.getContext('2d');
+
+    // Funcion auxiliar para dibujar un hueso o segmento muscular con brillo neon opcional
+    function bone(x1, y1, x2, y2, color = '#94A3B8', width = 6, glow = false) {
+      bCtx.save();
+      bCtx.strokeStyle = color; bCtx.lineWidth = width; bCtx.lineCap = 'round';
+      if (glow) { bCtx.shadowColor = color; bCtx.shadowBlur = 15; }
+      bCtx.beginPath(); bCtx.moveTo(x1, y1); bCtx.lineTo(x2, y2); bCtx.stroke();
+      bCtx.restore();
+    }
+
+    // Funcion auxiliar para dibujar una articulacion anatomica (hombro, codo, cadera, rodilla)
+    function node(x, y, r = 5, color = '#F8FAFC') {
+      bCtx.beginPath(); bCtx.fillStyle = color; bCtx.arc(x, y, r, 0, Math.PI * 2); bCtx.fill();
+    }
+
+    // Bucle de renderizado a 60 cuadros por segundo que calcula la cinematica de cada ejercicio
+    function renderXrayAnimation() {
+      animTick += 0.042;
+      const t = (Math.sin(animTick) + 1) / 2;
+      bCtx.clearRect(0, 0, bioCanvas.width, bioCanvas.height);
+      bone(20, 200, 330, 200, '#1E293B', 3);
+
+      if (activeDemoPose === 'bench_press' || activeDemoPose === 'incline_press') {
+        bone(70, 158, 220, 158, '#475569', 8);
+        node(88, 142, 10, '#E2E8F0');
+        bone(100, 146, 182, 148, '#00E5A3', 11, true);
+        const barY = 128 - t * 46;
+        bone(114, 146, 126, 152 - t * 22, '#FF416C', 8, true);
+        bone(126, 152 - t * 22, 116, barY, '#E2E8F0', 6);
+        bCtx.fillStyle = '#00C6FF'; bCtx.fillRect(102, barY - 14, 28, 28);
+      } else if (activeDemoPose === 'squat' || activeDemoPose === 'bulgarian_squat') {
+        const hipY = 110 + (1 - t) * 42, shY = 66 + (1 - t) * 38;
+        node(166, shY - 16, 10, '#E2E8F0');
+        bone(162, shY, 142, hipY, '#94A3B8', 10);
+        bone(142, hipY, 184, 156, '#00E5A3', 12, true);
+        bone(184, 156, 166, 198, '#CBD5E1', 8);
+      } else if (activeDemoPose === 'hip_thrust') {
+        bone(72, 148, 116, 148, '#475569', 8);
+        const hipY = 182 - t * 40;
+        node(90, 130, 9, '#E2E8F0');
+        bone(104, 140, 162, hipY, '#94A3B8', 10);
+        bone(162, hipY, 210, 142, '#FF416C', 12, true);
+        bone(210, 142, 210, 198, '#CBD5E1', 8);
+      } else {
+        const shY = 160 - t * 28, hipY = 172 - t * 14;
+        node(94, shY - 6, 9, '#E2E8F0');
+        bone(108, shY, 172, hipY, '#6366F1', 11, true);
+        bone(172, hipY, 236, 195, '#94A3B8', 9);
+        bone(108, shY, 108, 198, '#00E5A3', 8, true);
+      }
+      requestAnimationFrame(renderXrayAnimation);
+    }
+    renderXrayAnimation();
+
+    // Renderiza el catalogo completo de ejercicios dentro de la cuarta pestana (Rayos-X)
+    function renderXrayCatalog() {
+      const allEx = [];
+      appRoutines.forEach(r => r.exercises.forEach(e => allEx.push({ ...e, env: r.env })));
+      document.getElementById('xrayCatalogList').innerHTML = allEx.map(ex => `
+        <div class="spacious-card" style="padding:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="openDemoModal('${ex.name}', '${ex.pose}', '${ex.slug}', ['Controla 2 seg al bajar y exhala al subir.'])">
+          <div>
+            <span style="font-size:10px;font-weight:800;color:var(--primary);">${ex.env} • ${ex.muscle}</span>
+            <div style="font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;margin-top:2px;">${ex.name}</div>
+          </div>
+          <button class="sim-pill" style="border-color:var(--accent-cyan);color:var(--accent-cyan);">🧬 Rayos-X</button>
+        </div>
+      `).join('');
+    }
+
+    // Calcula en tiempo real la fuerza maxima estimada (1RM) con la formula cientifica de Epley
+    function update1RMCalc() {
+      const w = parseFloat(document.getElementById('calcW').value) || 0;
+      const r = parseInt(document.getElementById('calcR').value, 10) || 0;
+      const rm = w > 0 && r > 0 ? Math.round(w * (1 + r / 30)) : 0;
+      document.getElementById('calc1RMOut').textContent = rm + ' kg';
+    }
+
+    // =========================================================================
+    // SISTEMA DE PARTICULAS (CONFETI), NAVEGACION NATIVA Y RELOJES
+    // =========================================================================
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const cCtx = confettiCanvas.getContext('2d');
+    let particles = [];
+
+    // Dispara una explosion de particulas de celebracion cuando se logra un hito
+    function burstConfetti() {
+      for (let i = 0; i < 32; i++) {
+        particles.push({
+          x: 195, y: 220,
+          vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.8) * 8,
+          size: Math.random() * 5 + 3,
+          color: ['#00E5A3', '#FF416C', '#00C6FF', '#FFF'][Math.floor(Math.random() * 4)],
+          life: 1
+        });
+      }
+    }
+
+    // Actualiza la fisica de caida de las particulas de confeti en cada fotograma
+    function loopConfetti() {
+      cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      particles = particles.filter(p => p.life > 0.02);
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.22; p.life -= 0.02;
+        cCtx.fillStyle = p.color; cCtx.globalAlpha = p.life;
+        cCtx.fillRect(p.x, p.y, p.size, p.size);
+      });
+      cCtx.globalAlpha = 1;
+      requestAnimationFrame(loopConfetti);
+    }
+    loopConfetti();
+
+    // Oculta todas las pantallas de la app y activa unicamente la pantalla solicitada
+    function showScreen(screenId) {
+      document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    // Cambia entre las 4 pestanas principales de la barra de navegacion inferior
+    function navigateToTab(tab) {
+      showScreen('screen-' + tab);
+      ['home', 'community', 'workout', 'xray'].forEach(t => {
+        document.getElementById('bnav-' + t).classList.toggle('active', t === tab);
+      });
+      if (tab === 'community') renderClubsExplorer();
+    }
+
+    // Muestra una notificacion flotante estilo Android en la parte superior del telefono
+    function showToast(msg) {
+      const t = document.getElementById('toastNative');
+      t.textContent = msg;
+      t.classList.add('visible');
+      setTimeout(() => t.classList.remove('visible'), 3000);
+    }
+
+    // Reloj maestro que se ejecuta cada 1 segundo (1000 ms) para actualizar el cronometro y el descanso
+    setInterval(() => {
+      if (clockRunning) {
+        clockSeconds++;
+        const m = String(Math.floor(clockSeconds / 60)).padStart(2, '0');
+        const s = String(clockSeconds % 60).padStart(2, '0');
+        document.getElementById('activeClockDigits').textContent = `${m}:${s}`;
+      }
+      if (restSeconds > 0) {
+        restSeconds--;
+        const rm = String(Math.floor(restSeconds / 60)).padStart(2, '0');
+        const rs = String(restSeconds % 60).padStart(2, '0');
+        document.getElementById('restDigits').textContent = `${rm}:${rs}`;
+        if (restSeconds === 0) document.getElementById('restBoxActive').style.display = 'none';
+      }
+    }, 1000);
+
+    // =========================================================================
+    // INICIALIZACION DE LA APLICACION AL CARGAR LA PAGINA
+    // =========================================================================
+    loadCommunitiesDBFromLocalStorage();
+    renderCoachSpotifyPicker();
+    renderHomeRoutines();
+    renderClubsExplorer();
+    renderXrayCatalog();
+    renderWorkoutPrepList();
+  </script>
+</body>
+</html>

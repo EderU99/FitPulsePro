@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "FitPulse Pro",
+    "slug": "fitpulse-pro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#090D16",
+    "primaryColor": "#10B981",
+    "android": {
+      "package": "com.eder.fitpulsepro",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#090D16"
+      }
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.eder.fitpulsepro"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
